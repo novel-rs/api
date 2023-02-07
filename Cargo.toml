@@ -116,7 +116,7 @@ async-compression = { version = "0.3.15", default-features = false, features = [
   "zstd",
 ] }
 # https://github.com/SeaQL/sea-orm
-sea-orm = { version = "0.10.7", default-features = false, features = [
+sea-orm = { version = "0.11.0", default-features = false, features = [
   "with-chrono",
   "sqlx-sqlite",
   "runtime-tokio-rustls",
