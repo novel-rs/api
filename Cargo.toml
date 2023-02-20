@@ -129,7 +129,7 @@ toml = { version = "0.7.2", default-features = false, features = [
   "display",
 ] }
 # https://github.com/hwchen/keyring-rs
-keyring = { version = "1.2.1", default-features = false }
+keyring = { version = "2.0.1", default-features = false }
 # https://github.com/Hanaasagi/machine-uid
 machine-uid = { version = "0.2.0", default-features = false }
 # https://github.com/Seeker14491/opener
