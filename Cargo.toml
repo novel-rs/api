@@ -81,7 +81,7 @@ base64-simd = { version = "0.8.0", default-features = false, features = [
 # https://github.com/cloudflare/boring
 boring = { version = "2.1.0", default-features = false }
 # https://github.com/dirs-dev/directories-rs
-directories = { version = "4.0.1", default-features = false }
+directories = { version = "5.0.0", default-features = false }
 # https://github.com/pfernie/cookie_store
 cookie_store = { version = "0.19.0", default-features = false }
 # https://github.com/pfernie/reqwest_cookie_store
