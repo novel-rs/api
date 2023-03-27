@@ -135,7 +135,7 @@ keyring = { version = "2.0.1", default-features = false, features = [
 # https://github.com/Hanaasagi/machine-uid
 machine-uid = { version = "0.2.0", default-features = false }
 # https://github.com/Seeker14491/opener
-opener = { version = "0.5.2", default-features = false }
+opener = { version = "0.6.0", default-features = false }
 # https://github.com/Dentosal/portpicker-rs
 portpicker = { version = "0.1.1", default-features = false }
 
