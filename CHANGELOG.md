@@ -26,7 +26,6 @@ All notable changes to this project will be documented in this file.
 
 - Fix wrong tag
 - Remove semver-checks directory
-- Update changelog
 - Update deps
 - Update deps
 - Remove outdated action
