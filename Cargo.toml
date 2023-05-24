@@ -138,6 +138,12 @@ machine-uid = { version = "0.3.0", default-features = false }
 opener = { version = "0.6.1", default-features = false }
 # https://github.com/Dentosal/portpicker-rs
 portpicker = { version = "0.1.1", default-features = false }
+# https://github.com/RustCrypto/utils
+zeroize = { version = "1.6.0", default-features = false, features = [
+  "alloc",
+  "aarch64",
+  "derive",
+] }
 
 [dev-dependencies]
 # https://github.com/dtolnay/anyhow

@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use zeroize::ZeroizeOnDrop;
 
 use crate::{CiweimaoClient, Error};
 
@@ -364,10 +365,12 @@ pub(crate) struct GeetestInfoResponse {
 }
 
 #[must_use]
-#[derive(Serialize)]
+#[derive(Serialize, ZeroizeOnDrop)]
 pub(crate) struct SendVerifyCodeRequest {
     pub account: String,
+    #[zeroize(skip)]
     pub app_version: &'static str,
+    #[zeroize(skip)]
     pub device_token: &'static str,
     pub hashvalue: String,
     pub login_name: String,
@@ -390,18 +393,22 @@ pub(crate) struct SendVerifyCodeData {
 }
 
 #[must_use]
-#[derive(Serialize)]
+#[derive(Serialize, ZeroizeOnDrop)]
 pub(crate) struct LoginRequest {
+    #[zeroize(skip)]
     pub app_version: &'static str,
+    #[zeroize(skip)]
     pub device_token: &'static str,
     pub login_name: String,
     pub passwd: String,
 }
 
 #[must_use]
-#[derive(Serialize)]
+#[derive(Serialize, ZeroizeOnDrop)]
 pub(crate) struct LoginCaptchaRequest {
+    #[zeroize(skip)]
     pub app_version: &'static str,
+    #[zeroize(skip)]
     pub device_token: &'static str,
     pub login_name: String,
     pub passwd: String,
@@ -411,9 +418,11 @@ pub(crate) struct LoginCaptchaRequest {
 }
 
 #[must_use]
-#[derive(Serialize)]
+#[derive(Serialize, ZeroizeOnDrop)]
 pub(crate) struct LoginSMSRequest {
+    #[zeroize(skip)]
     pub app_version: &'static str,
+    #[zeroize(skip)]
     pub device_token: &'static str,
     pub login_name: String,
     pub passwd: String,

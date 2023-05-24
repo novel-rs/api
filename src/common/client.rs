@@ -217,10 +217,7 @@ pub trait Client {
     async fn add_cookie(&self, cookie_str: &str, url: &Url) -> Result<(), Error>;
 
     /// Login
-    async fn login<T, E>(&self, username: T, password: E) -> Result<(), Error>
-    where
-        T: AsRef<str> + Send + Sync,
-        E: AsRef<str> + Send + Sync;
+    async fn login(&self, username: String, password: String) -> Result<(), Error>;
 
     /// Get the information of the logged-in user, if the information fails to get, it will return None
     async fn user_info(&self) -> Result<Option<UserInfo>, Error>;

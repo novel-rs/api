@@ -2,6 +2,7 @@ use chrono::NaiveDateTime;
 use http::StatusCode;
 use serde::{Deserialize, Serialize};
 use url::Url;
+use zeroize::ZeroizeOnDrop;
 
 use crate::Error;
 
@@ -43,7 +44,7 @@ impl Status {
 }
 
 #[must_use]
-#[derive(Serialize)]
+#[derive(Serialize, ZeroizeOnDrop)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct LoginRequest {
     pub user_name: String,

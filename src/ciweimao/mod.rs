@@ -72,11 +72,7 @@ impl Client for CiweimaoClient {
         self.do_shutdown()
     }
 
-    async fn login<T, E>(&self, username: T, password: E) -> Result<(), Error>
-    where
-        T: AsRef<str> + Send + Sync,
-        E: AsRef<str> + Send + Sync,
-    {
+    async fn login(&self, username: String, password: String) -> Result<(), Error> {
         let (account, login_token);
 
         match self.verify_type(&username).await? {
@@ -564,23 +560,19 @@ impl CiweimaoClient {
         }
     }
 
-    async fn no_verification_login<T, E>(
+    async fn no_verification_login(
         &self,
-        username: T,
-        password: E,
-    ) -> Result<(String, String), Error>
-    where
-        T: AsRef<str> + Send + Sync,
-        E: AsRef<str> + Send + Sync,
-    {
+        username: String,
+        password: String,
+    ) -> Result<(String, String), Error> {
         let response: LoginResponse = self
             .post(
                 "/signup/login",
                 &LoginRequest {
                     app_version: CiweimaoClient::APP_VERSION,
                     device_token: CiweimaoClient::DEVICE_TOKEN,
-                    login_name: username.as_ref().to_string(),
-                    passwd: password.as_ref().to_string(),
+                    login_name: username,
+                    passwd: password,
                 },
             )
             .await?;
@@ -590,11 +582,11 @@ impl CiweimaoClient {
         Ok((data.reader_info.account, data.login_token))
     }
 
-    async fn geetest_login<T, E>(&self, username: T, password: E) -> Result<(String, String), Error>
-    where
-        T: AsRef<str> + Send + Sync,
-        E: AsRef<str> + Send + Sync,
-    {
+    async fn geetest_login(
+        &self,
+        username: String,
+        password: String,
+    ) -> Result<(String, String), Error> {
         let info = self.geetest_info(&username).await?;
         let geetest_challenge = info.challenge.clone();
 
@@ -606,8 +598,8 @@ impl CiweimaoClient {
                 &LoginCaptchaRequest {
                     app_version: CiweimaoClient::APP_VERSION,
                     device_token: CiweimaoClient::DEVICE_TOKEN,
-                    login_name: username.as_ref().to_string(),
-                    passwd: password.as_ref().to_string(),
+                    login_name: username,
+                    passwd: password,
                     geetest_seccode: validate.to_string() + "|jordan",
                     geetest_validate: validate,
                     geetest_challenge,
@@ -710,11 +702,11 @@ impl CiweimaoClient {
         Ok(validate)
     }
 
-    async fn sms_login<T, E>(&self, username: T, password: E) -> Result<(String, String), Error>
-    where
-        T: AsRef<str> + Send + Sync,
-        E: AsRef<str> + Send + Sync,
-    {
+    async fn sms_login(
+        &self,
+        username: String,
+        password: String,
+    ) -> Result<(String, String), Error> {
         let account = String::default();
 
         let timestamp = SystemTime::now()
@@ -736,7 +728,7 @@ impl CiweimaoClient {
                     app_version: CiweimaoClient::APP_VERSION,
                     device_token: CiweimaoClient::DEVICE_TOKEN,
                     hashvalue: hex_simd::encode_to_string(md5, AsciiCase::Lower),
-                    login_name: username.as_ref().to_string(),
+                    login_name: username.clone(),
                     timestamp: timestamp.to_string(),
                     verify_type: String::from("5"),
                 },
@@ -756,8 +748,8 @@ impl CiweimaoClient {
                 &LoginSMSRequest {
                     app_version: CiweimaoClient::APP_VERSION,
                     device_token: CiweimaoClient::DEVICE_TOKEN,
-                    login_name: username.as_ref().to_string(),
-                    passwd: password.as_ref().to_string(),
+                    login_name: username,
+                    passwd: password,
                     to_code: response.data.unwrap().to_code,
                     ver_code: ver_code.trim().to_string(),
                 },

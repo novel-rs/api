@@ -57,17 +57,13 @@ impl Client for SfacgClient {
         Ok(self.client().await?.add_cookie(cookie_str, url)?)
     }
 
-    async fn login<T, E>(&self, username: T, password: E) -> Result<(), Error>
-    where
-        T: AsRef<str> + Send + Sync,
-        E: AsRef<str> + Send + Sync,
-    {
+    async fn login(&self, username: String, password: String) -> Result<(), Error> {
         let response = self
             .post(
                 "/sessions",
                 &LoginRequest {
-                    user_name: username.as_ref().to_string(),
-                    pass_word: password.as_ref().to_string(),
+                    user_name: username,
+                    pass_word: password,
                 },
             )
             .await?
