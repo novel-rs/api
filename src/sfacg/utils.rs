@@ -14,8 +14,8 @@ impl SfacgClient {
     const APP_NAME: &str = "sfacg";
 
     const HOST: &str = "https://api.sfacg.com";
-    const USER_AGENT_PREFIX: &str = "boluobao/4.9.52(iOS;16.4.1)/appStore/";
-    const USER_AGENT_RSS: &str = "SFReader/4.9.52 (iPhone; iOS 16.4.1; Scale/3.00)";
+    const USER_AGENT_PREFIX: &str = "boluobao/4.9.62(iOS;16.5)/appStore/";
+    const USER_AGENT_RSS: &str = "SFReader/4.9.62 (iPhone; iOS 16.5; Scale/3.00)";
 
     const USERNAME: &str = "apiuser";
     const PASSWORD: &str = "3s#1-yt6e*Acv@qer";
