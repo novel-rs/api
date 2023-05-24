@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### <!-- 7 -->⚙️ Miscellaneous Tasks
+
+- Update cliff.toml
+- Update deps
+- Use cargo-nextest
+
+## [0.5.0] - 2023-05-17
+
 ### <!-- 2 -->🚜 Refactor
 
 - Some minor modifications to the client
@@ -16,6 +24,9 @@ All notable changes to this project will be documented in this file.
 
 ### <!-- 7 -->⚙️ Miscellaneous Tasks
 
+- Fix wrong tag
+- Remove semver-checks directory
+- Update changelog
 - Update deps
 - Update deps
 - Remove outdated action
