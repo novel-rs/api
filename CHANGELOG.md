@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 ### <!-- 7 -->⚙️ Miscellaneous Tasks
 
 - Update cliff.toml
+- Update changelog
+- Update cliff.toml
 - Update deps
 - Use cargo-nextest
 
@@ -26,6 +28,7 @@ All notable changes to this project will be documented in this file.
 
 - Fix wrong tag
 - Remove semver-checks directory
+- Update changelog
 - Update deps
 - Update deps
 - Remove outdated action
@@ -71,7 +74,6 @@ All notable changes to this project will be documented in this file.
 ### <!-- 3 -->📚 Documentation
 
 - Update README.md
-- Update changelog
 
 ### <!-- 6 -->🧪 Testing
 
@@ -125,10 +127,6 @@ All notable changes to this project will be documented in this file.
 - Apply clippy
 - Rename a error name
 - Rename some fields and add doc
-
-### <!-- 3 -->📚 Documentation
-
-- Update changelog
 
 ### <!-- 6 -->🧪 Testing
 
