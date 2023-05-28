@@ -46,9 +46,9 @@ mod tests {
 
     use pretty_assertions::assert_eq;
 
-    #[test]
+    #[tokio::test]
     #[cfg_attr(feature = "ci", ignore)]
-    fn keyring() -> Result<(), Error> {
+    async fn keyring() -> Result<(), Error> {
         let password = "test-username";
         let keyring = Keyring::new("test", password)?;
 
