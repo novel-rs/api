@@ -47,15 +47,16 @@ mod tests {
     use pretty_assertions::assert_eq;
 
     #[tokio::test]
-    #[cfg_attr(feature = "ci", ignore)]
     async fn keyring() -> Result<(), Error> {
-        let password = "test-username";
-        let keyring = Keyring::new("test", password)?;
+        if !is_ci::uncached() {
+            let password = "test-username";
+            let keyring = Keyring::new("test", password)?;
 
-        keyring.set_password(password)?;
-        assert_eq!(keyring.get_password()?, password);
+            keyring.set_password(password)?;
+            assert_eq!(keyring.get_password()?, password);
 
-        keyring.delete_password()?;
+            keyring.delete_password()?;
+        }
 
         Ok(())
     }
