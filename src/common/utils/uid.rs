@@ -1,5 +1,5 @@
 use once_cell::sync::OnceCell;
-use tracing::warn;
+use tracing::error;
 use uuid::Uuid;
 
 #[must_use]
@@ -9,9 +9,9 @@ pub(crate) fn uid() -> &'static String {
 
     UID.get_or_init(|| {
         let mut result = match machine_uid::get() {
-            Ok(uid) => uid,
-            Err(err) => {
-                warn!("Machine id generation failed, use uuid instead: `{}`", err);
+            Ok(uid) if !uid.is_empty() => uid,
+            _ => {
+                error!("Machine id generation failed, use uuid instead");
                 Uuid::new_v4().to_string()
             }
         };
