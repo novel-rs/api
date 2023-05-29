@@ -48,15 +48,13 @@ mod tests {
 
     #[tokio::test]
     async fn keyring() -> Result<(), Error> {
-        if !is_ci::uncached() {
-            let password = "test-username";
-            let keyring = Keyring::new("test", password)?;
+        let password = "test-username";
+        let keyring = Keyring::new("test", password)?;
 
-            keyring.set_password(password)?;
-            assert_eq!(keyring.get_password()?, password);
+        keyring.set_password(password)?;
+        assert_eq!(keyring.get_password()?, password);
 
-            keyring.delete_password()?;
-        }
+        keyring.delete_password()?;
 
         Ok(())
     }
