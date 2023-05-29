@@ -130,7 +130,7 @@ toml = { version = "0.7.4", default-features = false, features = [
 ] }
 # https://github.com/hwchen/keyring-rs
 keyring = { version = "2.0.3", default-features = false, features = [
-  "linux-default-keyutils",
+  "linux-no-secret-service",
 ] }
 # https://github.com/Hanaasagi/machine-uid
 machine-uid = { version = "0.3.0", default-features = false }
