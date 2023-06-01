@@ -30,7 +30,7 @@ impl CiweimaoClient {
     pub(crate) const LOGIN_EXPIRED: &str = "200100";
     pub(crate) const NOT_FOUND: &str = "320001";
 
-    pub(crate) const APP_VERSION: &str = "2.9.293";
+    pub(crate) const APP_VERSION: &str = "2.9.309";
     pub(crate) const DEVICE_TOKEN: &str = "ciweimao_";
 
     const HOST: &str = "https://app.hbooker.com";
@@ -40,7 +40,7 @@ impl CiweimaoClient {
 
     // TODO use iOS side
     const USER_AGENT: &str =
-        "Android  com.kuangxiangciweimao.novel  2.9.293,OnePlus, ONEPLUS A3010, 25, 7.1.1";
+        "Android  com.kuangxiangciweimao.novel  2.9.309,OnePlus, ONEPLUS A3010, 25, 7.1.1";
     const USER_AGENT_RSS: &str =
         "Dalvik/2.1.0 (Linux; U; Android 7.1.1; ONEPLUS A3010 Build/NMF26F)";
 
