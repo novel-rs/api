@@ -2,10 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [0.6.0] - 2023-06-02
+
+### <!-- 0 -->⛰️ Features
+
+- Set the password's memory to zero
+
+### <!-- 1 -->🐛 Bug Fixes
+
+- Attempt to fix panics on Linux
+- Attempt to fix panics on Linux
+- Uid is generated as empty
+
+### <!-- 2 -->🚜 Refactor
+
+- Remove is_some_and
+- Use is_ci instead of build.rs
+
+### <!-- 6 -->🧪 Testing
+
+- Attempt to remove is_ci check
+- Add keyring async test
 
 ### <!-- 7 -->⚙️ Miscellaneous Tasks
 
+- Add ciweimao example
+- Update ciweimao version
+- Bump sfacg version
+- Update deps
+- Temporarily disable trust-dns
+- Update deps
+- Update .justfile
+- Update sfacg and iOS version
+- Update cliff.toml
 - Update cliff.toml
 - Update changelog
 - Update cliff.toml
