@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0] - 2023-06-02
+
+### <!-- 0 -->⛰️ Features
+
+- Set the password's memory to zero
+
 ## [0.6.0] - 2023-06-02
 
 ### <!-- 0 -->⛰️ Features
