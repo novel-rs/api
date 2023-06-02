@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.1] - 2023-06-02
+
+### <!-- 1 -->🐛 Bug Fixes
+
+- Add is_accessible and is_valid missing `! `
+
 ## [0.7.0] - 2023-06-02
 
 ### <!-- 0 -->⛰️ Features
