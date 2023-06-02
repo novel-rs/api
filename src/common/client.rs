@@ -120,12 +120,12 @@ pub struct ChapterInfo {
 impl ChapterInfo {
     /// Is this chapter available
     pub fn is_accessible(&self) -> bool {
-        !crate::is_some_and(self.is_accessible.as_ref(), |x| !x)
+        self.is_accessible.as_ref().is_some_and(|x| !x)
     }
 
     /// Is this chapter valid
     pub fn is_valid(&self) -> bool {
-        !crate::is_some_and(self.is_valid.as_ref(), |x| !x)
+        self.is_valid.as_ref().is_some_and(|x| !x)
     }
 
     /// Is this chapter available for download
