@@ -1,4 +1,5 @@
 use keyring::Entry;
+use zeroize::Zeroize;
 
 use crate::Error;
 
@@ -27,11 +28,10 @@ impl Keyring {
     }
 
     /// Set password
-    pub fn set_password<T>(&self, password: T) -> Result<(), Error>
-    where
-        T: AsRef<str>,
-    {
-        Ok(self.entry.set_password(password.as_ref())?)
+    pub fn set_password(&self, mut password: String) -> Result<(), Error> {
+        self.entry.set_password(&password)?;
+        password.zeroize();
+        Ok(())
     }
 
     /// Delete password
@@ -48,10 +48,10 @@ mod tests {
 
     #[tokio::test]
     async fn keyring() -> Result<(), Error> {
-        let password = "test-username";
-        let keyring = Keyring::new("test", password)?;
+        let keyring = Keyring::new("test-app", "username")?;
+        let password = "test-password".to_string();
 
-        keyring.set_password(password)?;
+        keyring.set_password(password.clone())?;
         assert_eq!(keyring.get_password()?, password);
 
         keyring.delete_password()?;
