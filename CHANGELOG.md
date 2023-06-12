@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.2] - 2023-06-12
+
+### <!-- 1 -->🐛 Bug Fixes
+
+- Bookshelf_infos handles albums and comics
+
+### <!-- 3 -->📚 Documentation
+
+- Add msrv badge
+
+### <!-- 7 -->⚙️ Miscellaneous Tasks
+
+- Update deps
+- Correct incorrect manifest field
+- Update deps
+- Record minimum supported Rust version in metadata
+
 ## [0.7.1] - 2023-06-02
 
 ### <!-- 1 -->🐛 Bug Fixes
