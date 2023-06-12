@@ -320,10 +320,10 @@ impl Client for CiweimaoClient {
         let mut result = Vec::new();
 
         for shelf_id in shelf_ids {
-            let response: FavoritesResponse = self
+            let response: BookshelfResponse = self
                 .post(
                     "/bookshelf/get_shelf_book_list_new",
-                    &FavoritesRequest {
+                    &BookshelfRequest {
                         app_version: CiweimaoClient::APP_VERSION,
                         device_token: CiweimaoClient::DEVICE_TOKEN,
                         account: self.account(),

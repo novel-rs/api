@@ -189,7 +189,7 @@ pub(crate) struct SearchNovelInfo {
 
 #[must_use]
 #[derive(Serialize)]
-pub(crate) struct FavoritesRequest {
+pub(crate) struct BookshelfRequest {
     pub app_version: &'static str,
     pub device_token: &'static str,
     pub account: String,
@@ -199,27 +199,27 @@ pub(crate) struct FavoritesRequest {
 
 #[must_use]
 #[derive(Deserialize)]
-pub(crate) struct FavoritesResponse {
+pub(crate) struct BookshelfResponse {
     pub code: String,
     pub tip: Option<String>,
-    pub data: Option<FavoritesData>,
+    pub data: Option<BookshelfData>,
 }
 
 #[must_use]
 #[derive(Deserialize)]
-pub(crate) struct FavoritesData {
-    pub book_list: Vec<FavoritesInfo>,
+pub(crate) struct BookshelfData {
+    pub book_list: Vec<BookshelfInfo>,
 }
 
 #[must_use]
 #[derive(Deserialize)]
-pub(crate) struct FavoritesInfo {
-    pub book_info: FavoritesNovelInfo,
+pub(crate) struct BookshelfInfo {
+    pub book_info: BookshelfNovelInfo,
 }
 
 #[must_use]
 #[derive(Deserialize)]
-pub(crate) struct FavoritesNovelInfo {
+pub(crate) struct BookshelfNovelInfo {
     pub book_id: String,
 }
 

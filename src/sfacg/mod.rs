@@ -290,19 +290,19 @@ impl Client for SfacgClient {
         let response = self
             .get_query(
                 "/user/Pockets",
-                &FavoritesRequest {
+                &BookshelfRequest {
                     expand: "novels,albums,comics",
                 },
             )
             .await?
-            .json::<FavoritesResponse>()
+            .json::<BookshelfResponse>()
             .await?;
         response.status.check()?;
 
         let mut result = Vec::new();
         if response.data.is_some() {
             for data in response.data.unwrap() {
-                if let FavoritesExpand::Novels(novels) = data.expand {
+                if let BookshelfExpand::Novels(novels) = data.expand {
                     for novel_info in novels {
                         result.push(novel_info.novel_id);
                     }

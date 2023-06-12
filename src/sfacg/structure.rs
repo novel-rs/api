@@ -214,36 +214,44 @@ pub(crate) struct SearchNovelInfo {
 
 #[must_use]
 #[derive(Serialize)]
-pub(crate) struct FavoritesRequest {
+pub(crate) struct BookshelfRequest {
     pub expand: &'static str,
 }
 
 #[must_use]
 #[derive(Deserialize)]
-pub(crate) struct FavoritesResponse {
+pub(crate) struct BookshelfResponse {
     pub status: Status,
-    pub data: Option<Vec<FavoritesData>>,
+    pub data: Option<Vec<BookshelfData>>,
 }
 
 #[must_use]
 #[derive(Deserialize)]
-pub(crate) struct FavoritesData {
-    pub expand: FavoritesExpand,
-}
-
-#[must_use]
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub(crate) enum FavoritesExpand {
-    Novels(Vec<FavoritesNovelInfo>),
-    Albums(Vec<FavoritesNovelInfo>),
-    Comics(Vec<FavoritesNovelInfo>),
+pub(crate) struct BookshelfData {
+    pub expand: BookshelfExpand,
 }
 
 #[must_use]
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct FavoritesNovelInfo {
+pub(crate) enum BookshelfExpand {
+    Albums(Vec<BookshelfAlbumsInfo>),
+    Comics(Vec<BookshelfComicsInfo>),
+    Novels(Vec<BookshelfNovelInfo>),
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct BookshelfAlbumsInfo {}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct BookshelfComicsInfo {}
+
+#[must_use]
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct BookshelfNovelInfo {
     pub novel_id: u32,
 }
 
