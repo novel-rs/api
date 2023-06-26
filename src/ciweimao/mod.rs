@@ -694,7 +694,7 @@ impl CiweimaoClient {
         );
         tokio::task::spawn(server);
 
-        opener::open_browser(format!("http://{}:{}/captcha", addr.ip(), addr.port()))?;
+        open::that(format!("http://{}:{}/captcha", addr.ip(), addr.port()))?;
 
         let validate = rx.recv().await.unwrap();
         stop_tx.send(()).unwrap();

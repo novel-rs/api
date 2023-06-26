@@ -45,7 +45,7 @@ simdutf8 = { version = "0.1.4", default-features = false, features = [
   "aarch64_neon",
 ] }
 # https://github.com/serde-rs/json
-serde_json = { version = "1.0.97", default-features = false, features = [
+serde_json = { version = "1.0.99", default-features = false, features = [
   "std",
 ] }
 # https://github.com/causal-agent/scraper
@@ -124,18 +124,18 @@ sea-orm = { version = "0.11.3", default-features = false, features = [
 # https://github.com/SeaQL/sea-orm
 sea-orm-migration = { version = "0.11.3", default-features = false }
 # https://github.com/toml-rs/toml
-toml = { version = "0.7.4", default-features = false, features = [
+toml = { version = "0.7.5", default-features = false, features = [
   "parse",
   "display",
 ] }
 # https://github.com/hwchen/keyring-rs
-keyring = { version = "2.0.3", default-features = false, features = [
+keyring = { version = "2.0.4", default-features = false, features = [
   "linux-no-secret-service",
 ] }
 # https://github.com/Hanaasagi/machine-uid
 machine-uid = { version = "0.3.0", default-features = false }
-# https://github.com/Seeker14491/opener
-opener = { version = "0.6.1", default-features = false }
+# https://github.com/Byron/open-rs
+open = { version = "5.0.0", default-features = false }
 # https://github.com/Dentosal/portpicker-rs
 portpicker = { version = "0.1.1", default-features = false }
 # https://github.com/RustCrypto/utils

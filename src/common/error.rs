@@ -20,8 +20,6 @@ pub enum Error {
     #[error(transparent)]
     SerdeJson(#[from] serde_json::Error),
     #[error(transparent)]
-    Opener(#[from] opener::OpenError),
-    #[error(transparent)]
     Semver(#[from] semver::Error),
     #[error(transparent)]
     Toml(#[from] toml::de::Error),
