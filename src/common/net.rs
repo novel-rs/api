@@ -10,7 +10,7 @@ use http::StatusCode;
 use parking_lot::RwLock;
 use reqwest::{
     header::{HeaderMap, HeaderValue, ACCEPT, ACCEPT_LANGUAGE, CONNECTION},
-    Certificate, Client, Proxy,
+    redirect, Certificate, Client, Proxy,
 };
 use reqwest_cookie_store::{CookieStore, CookieStoreMutex};
 use tokio::fs;
@@ -138,6 +138,7 @@ impl HTTPClientBuilder {
 
         let mut client_builder = Client::builder()
             .default_headers(headers)
+            .redirect(redirect::Policy::none())
             .http2_keep_alive_interval(Duration::from_secs(10))
             .http2_keep_alive_timeout(Duration::from_secs(60))
             .user_agent(self.user_agent);
