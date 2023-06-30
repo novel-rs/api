@@ -18,7 +18,7 @@ pub fn home_dir_path() -> Result<PathBuf, Error> {
 
 /// Return the path to the project's config directory or the current directory on failure
 pub fn config_dir_path(app_name: &str) -> Result<PathBuf, Error> {
-    match ProjectDirs::from("", "", app_name) {
+    match ProjectDirs::from("", "novel-rs", app_name) {
         Some(dir) => Ok(dir.config_dir().to_path_buf()),
         None => {
             error!("Failed to get the path to the project's config directory, using the current working directory");
@@ -29,7 +29,7 @@ pub fn config_dir_path(app_name: &str) -> Result<PathBuf, Error> {
 
 /// Return the path to the project's local data directory or the current directory on failure
 pub fn data_dir_path(app_name: &str) -> Result<PathBuf, Error> {
-    match ProjectDirs::from("", "", app_name) {
+    match ProjectDirs::from("", "novel-rs", app_name) {
         Some(dir) => Ok(dir.data_local_dir().to_path_buf()),
         None => {
             error!("Failed to get the path to the project's local data directory, using the current working directory");
