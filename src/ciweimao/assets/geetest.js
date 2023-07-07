@@ -244,7 +244,7 @@
         if (err) {
           callback(config._get_fallback_config());
         }
-      }
+      },
     );
   };
   var reportError = function (config, url) {
@@ -262,7 +262,7 @@
         exception_url: url,
         error_code: config.error_code,
       },
-      function (err) {}
+      function (err) {},
     );
   };
   var throwError = function (errorType, config) {
@@ -344,7 +344,7 @@
                 }
                 callbacks[type] = [];
               }
-            }
+            },
           );
         } else if (s === "loaded") {
           init();
@@ -353,7 +353,7 @@
         } else if (s === "loading") {
           callbacks[type].push(init);
         }
-      }
+      },
     );
   };
 })(window);
