@@ -15,14 +15,14 @@ categories = ["command-line-utilities"]
 
 [dependencies]
 # https://github.com/dtolnay/thiserror
-thiserror = { version = "1.0.40", default-features = false }
+thiserror = { version = "1.0.43", default-features = false }
 # https://github.com/serde-rs/serde
-serde = { version = "1.0.164", default-features = false, features = [
+serde = { version = "1.0.167", default-features = false, features = [
   "std",
   "derive",
 ] }
 # https://github.com/dtolnay/async-trait
-async-trait = { version = "0.1.68", default-features = false }
+async-trait = { version = "0.1.71", default-features = false }
 # https://github.com/tokio-rs/tokio
 tokio = { version = "1.29.1", default-features = false, features = [
   "fs",
@@ -45,7 +45,7 @@ simdutf8 = { version = "0.1.4", default-features = false, features = [
   "aarch64_neon",
 ] }
 # https://github.com/serde-rs/json
-serde_json = { version = "1.0.99", default-features = false, features = [
+serde_json = { version = "1.0.100", default-features = false, features = [
   "std",
 ] }
 # https://github.com/causal-agent/scraper
@@ -124,7 +124,7 @@ sea-orm = { version = "0.11.3", default-features = false, features = [
 # https://github.com/SeaQL/sea-orm
 sea-orm-migration = { version = "0.11.3", default-features = false }
 # https://github.com/toml-rs/toml
-toml = { version = "0.7.5", default-features = false, features = [
+toml = { version = "0.7.6", default-features = false, features = [
   "parse",
   "display",
 ] }
@@ -149,7 +149,7 @@ zeroize = { version = "1.6.0", default-features = false, features = [
 # https://github.com/dtolnay/anyhow
 anyhow = { version = "1.0.71", default-features = false, features = ["std"] }
 # https://github.com/rust-pretty-assertions/rust-pretty-assertions
-pretty_assertions = { version = "1.3.0", default-features = false, features = [
+pretty_assertions = { version = "1.4.0", default-features = false, features = [
   "std",
 ] }
 # https://github.com/tokio-rs/tokio
