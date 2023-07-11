@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.0] - 2023-07-11
+
+### <!-- 2 -->🚜 Refactor
+
+- Specify the name of the organization
+- Disable redirect
+- Use open instead of opener
+
+### <!-- 5 -->🎨 Styling
+
+- Run prettier
+
+### <!-- 7 -->⚙️ Miscellaneous Tasks
+
+- Update deps
+- Update deps
+- Update deps
+- Bump uuid
+- Bump user agent
+- Bump sfacg version
+- Update scraper requirement from 0.16.0 to 0.17.1 ([#17](https://github.com/novel-rs/api/issues/17))
+- Pre-commit autoupdate ([#16](https://github.com/novel-rs/api/issues/16))
+- Update deps
+- Pre-commit autoupdate ([#15](https://github.com/novel-rs/api/issues/15))
+
 ## [0.7.2] - 2023-06-12
 
 ### <!-- 1 -->🐛 Bug Fixes
