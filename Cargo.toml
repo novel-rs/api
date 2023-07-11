@@ -17,7 +17,7 @@ categories = ["command-line-utilities"]
 # https://github.com/dtolnay/thiserror
 thiserror = { version = "1.0.43", default-features = false }
 # https://github.com/serde-rs/serde
-serde = { version = "1.0.167", default-features = false, features = [
+serde = { version = "1.0.171", default-features = false, features = [
   "std",
   "derive",
 ] }
@@ -111,9 +111,9 @@ image = { version = "0.24.6", default-features = false, features = [
   "webp-encoder",
 ] }
 # https://github.com/Nemo157/async-compression
-async-compression = { version = "0.4.0", default-features = false, features = [
+async-compression = { version = "0.4.1", default-features = false, features = [
   "tokio",
-  "zstd",
+  "zstdmt",
 ] }
 # https://github.com/SeaQL/sea-orm
 sea-orm = { version = "0.11.3", default-features = false, features = [
