@@ -45,7 +45,7 @@ simdutf8 = { version = "0.1.4", default-features = false, features = [
   "aarch64_neon",
 ] }
 # https://github.com/serde-rs/json
-serde_json = { version = "1.0.100", default-features = false, features = [
+serde_json = { version = "1.0.103", default-features = false, features = [
   "std",
 ] }
 # https://github.com/causal-agent/scraper
@@ -62,7 +62,7 @@ chrono = { version = "0.4.26", default-features = false, features = [
   "serde",
 ] }
 # https://github.com/dtolnay/semver
-semver = { version = "1.0.17", default-features = false, features = [
+semver = { version = "1.0.18", default-features = false, features = [
   "std",
   "serde",
 ] }
@@ -133,7 +133,7 @@ keyring = { version = "2.0.4", default-features = false, features = [
   "linux-no-secret-service",
 ] }
 # https://github.com/Hanaasagi/machine-uid
-machine-uid = { version = "0.3.0", default-features = false }
+machine-uid = { version = "0.4.0", default-features = false }
 # https://github.com/Byron/open-rs
 open = { version = "5.0.0", default-features = false }
 # https://github.com/Dentosal/portpicker-rs
@@ -147,7 +147,7 @@ zeroize = { version = "1.6.0", default-features = false, features = [
 
 [dev-dependencies]
 # https://github.com/dtolnay/anyhow
-anyhow = { version = "1.0.71", default-features = false, features = ["std"] }
+anyhow = { version = "1.0.72", default-features = false, features = ["std"] }
 # https://github.com/rust-pretty-assertions/rust-pretty-assertions
 pretty_assertions = { version = "1.4.0", default-features = false, features = [
   "std",
