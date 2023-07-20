@@ -17,7 +17,7 @@ categories = ["command-line-utilities"]
 # https://github.com/dtolnay/thiserror
 thiserror = { version = "1.0.43", default-features = false }
 # https://github.com/serde-rs/serde
-serde = { version = "1.0.171", default-features = false, features = [
+serde = { version = "1.0.173", default-features = false, features = [
   "std",
   "derive",
 ] }
@@ -51,7 +51,7 @@ serde_json = { version = "1.0.103", default-features = false, features = [
 # https://github.com/causal-agent/scraper
 scraper = { version = "0.17.1", default-features = false }
 # https://github.com/uuid-rs/uuid
-uuid = { version = "1.4.0", default-features = false, features = [
+uuid = { version = "1.4.1", default-features = false, features = [
   "std",
   "v4",
   "fast-rng",
