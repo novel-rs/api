@@ -2,7 +2,7 @@ mod structure;
 mod utils;
 
 use std::{
-    io::{self, Cursor, Write},
+    io::Cursor,
     path::{Path, PathBuf},
     str::FromStr,
     time::{SystemTime, UNIX_EPOCH},
@@ -17,6 +17,7 @@ use chrono::NaiveDateTime;
 use hex_simd::AsciiCase;
 use image::{io::Reader, DynamicImage};
 use parking_lot::RwLock;
+use requestty::Question;
 use scraper::{Html, Selector};
 use serde_json::json;
 use tokio::sync::{mpsc, oneshot, OnceCell};
@@ -736,11 +737,14 @@ impl CiweimaoClient {
             .await?;
         check_response(response.code, response.tip)?;
 
-        print!("Please enter SMS verification code: ");
-        io::stdout().flush()?;
-
-        let mut ver_code = String::new();
-        io::stdin().read_line(&mut ver_code)?;
+        let ver_code = requestty::prompt_one(
+            Question::input("verification")
+                .message("Please enter SMS verification code")
+                .build(),
+        )?
+        .as_string()
+        .unwrap()
+        .to_string();
 
         let response: LoginResponse = self
             .post(

@@ -144,6 +144,11 @@ zeroize = { version = "1.6.0", default-features = false, features = [
   "aarch64",
   "derive",
 ] }
+# https://github.com/Lutetium-Vanadium/requestty
+requestty = { version = "0.5.0", default-features = false, features = [
+  "crossterm",
+  "smallvec",
+] }
 
 [dev-dependencies]
 # https://github.com/dtolnay/anyhow

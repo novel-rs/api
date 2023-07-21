@@ -41,6 +41,8 @@ pub enum Error {
     CookieStore(#[from] cookie_store::Error),
     #[error(transparent)]
     StatusCode(#[from] http::status::InvalidStatusCode),
+    #[error(transparent)]
+    Requestty(#[from] requestty::ErrorKind),
     #[error("{0}")]
     NovelApi(String),
     #[error("The HTTP request failed, status code: `{code}`, message: `{msg}`")]
