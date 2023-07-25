@@ -1,2 +1,2 @@
 [build]
-rustflags = ["-Dwarnings"]
+rustflags = ["-Dwarnings", "--cfg", "aes_armv8"]

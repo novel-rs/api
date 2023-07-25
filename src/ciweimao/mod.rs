@@ -10,16 +10,14 @@ use std::{
 };
 
 use async_trait::async_trait;
-use boring::{
-    hash::{self, MessageDigest},
-    sha,
-};
 use chrono::NaiveDateTime;
 use hex_simd::AsciiCase;
 use image::{io::Reader, DynamicImage};
+use md5::{Digest, Md5};
 use requestty::Question;
 use scraper::{Html, Selector};
 use serde_json::json;
+use sha2::Sha256;
 use tokio::sync::{mpsc, oneshot, OnceCell};
 use tracing::{error, info};
 use url::Url;
@@ -219,7 +217,8 @@ impl Client for CiweimaoClient {
                 let identifier = info.identifier.to_string();
 
                 let cmd = self.chapter_cmd(&identifier).await?;
-                let aes_key = sha::sha256(cmd.as_bytes());
+                let mut hasher = Sha256::new();
+                hasher.update(cmd.as_bytes());
 
                 let response: ChapsResponse = self
                     .post(
@@ -237,7 +236,7 @@ impl Client for CiweimaoClient {
                 check_response(response.code, response.tip)?;
 
                 let conetent = CiweimaoClient::aes_256_cbc_base64_decrypt(
-                    aes_key,
+                    hasher.finalize(),
                     response.data.unwrap().chapter_info.txt_content,
                 )?;
                 content = simdutf8::basic::from_utf8(&conetent)?.to_string();
@@ -716,10 +715,8 @@ impl CiweimaoClient {
             .as_micros() as f64
             / 1000000.0;
 
-        let md5 = hash::hash(
-            MessageDigest::md5(),
-            format!("{account}{timestamp}").as_bytes(),
-        )?;
+        let mut hasher = Md5::new();
+        hasher.update(format!("{account}{timestamp}").as_bytes());
 
         let response: SendVerifyCodeResponse = self
             .post(
@@ -728,7 +725,7 @@ impl CiweimaoClient {
                     account,
                     app_version: CiweimaoClient::APP_VERSION,
                     device_token: CiweimaoClient::DEVICE_TOKEN,
-                    hashvalue: hex_simd::encode_to_string(md5, AsciiCase::Lower),
+                    hashvalue: hex_simd::encode_to_string(hasher.finalize(), AsciiCase::Lower),
                     login_name: username.clone(),
                     timestamp: timestamp.to_string(),
                     verify_type: String::from("5"),

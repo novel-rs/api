@@ -1,7 +1,7 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use boring::hash::{self, MessageDigest};
 use hex_simd::AsciiCase;
+use md5::{Digest, Md5};
 use reqwest::Response;
 use serde::Serialize;
 use tokio::sync::OnceCell;
@@ -143,11 +143,12 @@ impl SfacgClient {
         let device_token = crate::uid();
 
         let data = format!("{uuid}{timestamp}{device_token}{}", SfacgClient::SALT);
-        let md5 = hash::hash(MessageDigest::md5(), data.as_bytes())?;
+        let mut hasher = Md5::new();
+        hasher.update(data.as_bytes());
 
         Ok(format!(
             "nonce={uuid}&timestamp={timestamp}&devicetoken={device_token}&sign={}",
-            hex_simd::encode_to_string(md5, AsciiCase::Upper)
+            hex_simd::encode_to_string(hasher.finalize(), AsciiCase::Upper)
         ))
     }
 }

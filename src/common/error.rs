@@ -14,7 +14,7 @@ pub enum Error {
     #[error(transparent)]
     Reqwest(#[from] reqwest::Error),
     #[error(transparent)]
-    Boring(#[from] boring::error::ErrorStack),
+    UnpadError(#[from] aes::cipher::block_padding::UnpadError),
     #[error(transparent)]
     Base64Simd(#[from] base64_simd::Error),
     #[error(transparent)]

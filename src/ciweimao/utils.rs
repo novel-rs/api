@@ -1,13 +1,15 @@
 use std::{path::PathBuf, sync::RwLock};
 
-use boring::{
-    sha,
-    symm::{self, Cipher},
+use aes::{
+    cipher::{block_padding::Pkcs7, BlockDecryptMut, KeyIvInit},
+    Aes256,
 };
+use cbc::Decryptor;
 use once_cell::sync::OnceCell as SyncOnceCell;
 use reqwest::Response;
 use semver::{Version, VersionReq};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use tokio::{fs, sync::OnceCell};
 use tracing::{error, info, warn};
 use url::Url;
@@ -228,7 +230,11 @@ impl CiweimaoClient {
     #[inline]
     fn get_default_key() -> &'static [u8; 32] {
         static AES_KEY: SyncOnceCell<[u8; 32]> = SyncOnceCell::new();
-        AES_KEY.get_or_init(|| sha::sha256(CiweimaoClient::AES_KEY.as_bytes()))
+        AES_KEY.get_or_init(|| {
+            let mut hasher = Sha256::new();
+            hasher.update(CiweimaoClient::AES_KEY.as_bytes());
+            hasher.finalize().into()
+        })
     }
 
     #[inline]
@@ -240,8 +246,9 @@ impl CiweimaoClient {
         let base64 = base64_simd::STANDARD;
         let decoded = base64.decode_to_vec(data.as_ref())?;
 
-        let cipher = Cipher::aes_256_cbc();
-        let result = symm::decrypt(cipher, key.as_ref(), Some(&[0; 16]), &decoded)?;
+        type Aes256CbcDec = Decryptor<Aes256>;
+        let result = Aes256CbcDec::new(key.as_ref().into(), &[0; 16].into())
+            .decrypt_padded_vec_mut::<Pkcs7>(&decoded)?;
 
         Ok(result)
     }

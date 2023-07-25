@@ -71,8 +71,17 @@ base64-simd = { version = "0.8.0", default-features = false, features = [
   "std",
   "detect",
 ] }
-# https://github.com/cloudflare/boring
-boring = { version = "2.1.0", default-features = false }
+# https://github.com/RustCrypto/block-ciphers
+aes = { version = "0.8.3", default-features = false }
+# https://github.com/RustCrypto/block-modes
+cbc = { version = "0.1.2", default-features = false, features = [
+  "std",
+  "block-padding",
+] }
+# https://github.com/RustCrypto/hashes
+md-5 = { version = "0.10.5", default-features = false, features = ["std"] }
+# https://github.com/RustCrypto/hashes
+sha2 = { version = "0.10.7", default-features = false, features = ["std"] }
 # https://github.com/dirs-dev/directories-rs
 directories = { version = "5.0.1", default-features = false }
 # https://github.com/pfernie/cookie_store
