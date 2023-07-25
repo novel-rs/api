@@ -15,14 +15,14 @@ categories = ["command-line-utilities"]
 
 [dependencies]
 # https://github.com/dtolnay/thiserror
-thiserror = { version = "1.0.43", default-features = false }
+thiserror = { version = "1.0.44", default-features = false }
 # https://github.com/serde-rs/serde
-serde = { version = "1.0.173", default-features = false, features = [
+serde = { version = "1.0.175", default-features = false, features = [
   "std",
   "derive",
 ] }
 # https://github.com/dtolnay/async-trait
-async-trait = { version = "0.1.71", default-features = false }
+async-trait = { version = "0.1.72", default-features = false }
 # https://github.com/tokio-rs/tokio
 tokio = { version = "1.29.1", default-features = false, features = [
   "fs",
@@ -123,13 +123,18 @@ sea-orm = { version = "0.11.3", default-features = false, features = [
 ] }
 # https://github.com/SeaQL/sea-orm
 sea-orm-migration = { version = "0.11.3", default-features = false }
+# https://github.com/rusqlite/rusqlite
+# See https://github.com/launchbadge/sqlx/issues/1436
+libsqlite3-sys = { version = "=0.24.2", default-features = false, features = [
+  "bundled-sqlcipher-vendored-openssl",
+] }
 # https://github.com/toml-rs/toml
 toml = { version = "0.7.6", default-features = false, features = [
   "parse",
   "display",
 ] }
 # https://github.com/hwchen/keyring-rs
-keyring = { version = "2.0.4", default-features = false, features = [
+keyring = { version = "2.0.5", default-features = false, features = [
   "linux-no-secret-service",
 ] }
 # https://github.com/Hanaasagi/machine-uid

@@ -5,7 +5,7 @@ use std::{io::Cursor, path::PathBuf};
 
 use async_compression::tokio::{bufread::ZstdDecoder, write::ZstdEncoder};
 use image::{io::Reader, DynamicImage};
-use sea_orm::{ActiveModelTrait, Database, DatabaseConnection, EntityTrait};
+use sea_orm::{ActiveModelTrait, ConnectOptions, Database, DatabaseConnection, EntityTrait};
 use tokio::{
     fs,
     io::{AsyncReadExt, AsyncWriteExt, BufReader},
@@ -39,6 +39,8 @@ pub(crate) enum FindImageResult {
 
 impl NovelDB {
     const DB_NAME: &str = "novel.db";
+    // See https://github.com/sqlcipher/sqlcipher#encrypting-a-database
+    const PASSWORD: &str = "'qakju7-hybNys-syjvam'";
 
     pub(crate) async fn new(app_name: &str) -> Result<Self, Error> {
         let db_path = NovelDB::db_path(app_name)?;
@@ -55,7 +57,10 @@ impl NovelDB {
         }
 
         let db_url = format!("sqlite:{}?mode=rwc", db_path.display());
-        let db = Database::connect(db_url).await?;
+        let mut option = ConnectOptions::new(db_url);
+        option.sqlcipher_key(NovelDB::PASSWORD);
+
+        let db = Database::connect(option).await?;
         Migrator::up(&db, None).await?;
 
         Ok(Self { db })
