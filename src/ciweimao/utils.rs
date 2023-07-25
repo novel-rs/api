@@ -1,11 +1,10 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, sync::RwLock};
 
 use boring::{
     sha,
     symm::{self, Cipher},
 };
 use once_cell::sync::OnceCell as SyncOnceCell;
-use parking_lot::RwLock;
 use reqwest::Response;
 use semver::{Version, VersionReq};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
@@ -103,23 +102,28 @@ impl CiweimaoClient {
     #[must_use]
     #[inline]
     pub(crate) fn account(&self) -> String {
-        self.account.read().as_ref().unwrap().to_string()
+        self.account.read().unwrap().as_ref().unwrap().to_string()
     }
 
     #[must_use]
     #[inline]
     pub(crate) fn login_token(&self) -> String {
-        self.login_token.read().as_ref().unwrap().to_string()
+        self.login_token
+            .read()
+            .unwrap()
+            .as_ref()
+            .unwrap()
+            .to_string()
     }
 
     #[must_use]
     pub(crate) fn has_token(&self) -> bool {
-        self.account.read().is_some() && self.login_token.read().is_some()
+        self.account.read().unwrap().is_some() && self.login_token.read().unwrap().is_some()
     }
 
     pub(crate) fn save_token(&self, account: String, login_token: String) {
-        *self.account.write() = Some(account);
-        *self.login_token.write() = Some(login_token);
+        *self.account.write().unwrap() = Some(account);
+        *self.login_token.write().unwrap() = Some(login_token);
     }
 
     #[inline]
@@ -255,8 +259,8 @@ impl CiweimaoClient {
 
             info!("Save the config file at: `{}`", config_file_path.display());
 
-            *self.account.write() = None;
-            *self.login_token.write() = None;
+            *self.account.write().unwrap() = None;
+            *self.login_token.write().unwrap() = None;
         } else {
             info!("No data can be saved to the configuration file");
         }

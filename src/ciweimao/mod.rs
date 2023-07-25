@@ -5,6 +5,7 @@ use std::{
     io::Cursor,
     path::{Path, PathBuf},
     str::FromStr,
+    sync::RwLock,
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -16,7 +17,6 @@ use boring::{
 use chrono::NaiveDateTime;
 use hex_simd::AsciiCase;
 use image::{io::Reader, DynamicImage};
-use parking_lot::RwLock;
 use requestty::Question;
 use scraper::{Html, Selector};
 use serde_json::json;

@@ -30,15 +30,8 @@ tokio = { version = "1.29.1", default-features = false, features = [
   "rt-multi-thread",
   "parking_lot",
 ] }
-# https://github.com/Amanieu/parking_lot
-parking_lot = { version = "0.12.1", default-features = false, features = [
-  "hardware-lock-elision",
-] }
 # https://github.com/matklad/once_cell
-once_cell = { version = "1.18.0", default-features = false, features = [
-  "std",
-  "parking_lot",
-] }
+once_cell = { version = "1.18.0", default-features = false, features = ["std"] }
 # https://github.com/rusticstuff/simdutf8
 simdutf8 = { version = "0.1.4", default-features = false, features = [
   "std",

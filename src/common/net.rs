@@ -2,12 +2,11 @@ use std::{
     io::BufWriter,
     ops::Deref,
     path::{Path, PathBuf},
-    sync::Arc,
+    sync::{Arc, RwLock},
     time::Duration,
 };
 
 use http::StatusCode;
-use parking_lot::RwLock;
 use reqwest::{
     header::{HeaderMap, HeaderValue, ACCEPT, ACCEPT_LANGUAGE, CONNECTION},
     redirect, Certificate, Client, Proxy,
@@ -218,6 +217,7 @@ impl HTTPClient {
     pub(crate) fn add_cookie(&self, cookie_str: &str, url: &Url) -> Result<(), Error> {
         self.cookie_store
             .write()
+            .unwrap()
             .as_ref()
             .expect("Cookies not turned on")
             .lock()
@@ -228,7 +228,7 @@ impl HTTPClient {
     }
 
     pub(crate) fn shutdown(&self) -> Result<(), Error> {
-        if self.cookie_store.read().is_some() {
+        if self.cookie_store.read().unwrap().is_some() {
             let cookie_path = HTTPClientBuilder::cookie_path(self.app_name)?;
 
             info!("Save the cookie file at: `{}`", cookie_path.display());
@@ -237,13 +237,14 @@ impl HTTPClient {
             let mut writer = BufWriter::new(file);
             self.cookie_store
                 .read()
+                .unwrap()
                 .as_ref()
                 .unwrap()
                 .lock()
                 .unwrap()
                 .save_json(&mut writer)?;
 
-            *self.cookie_store.write() = None;
+            *self.cookie_store.write().unwrap() = None;
         }
 
         Ok(())
