@@ -7,9 +7,9 @@ use aes::{
 use cbc::Decryptor;
 use once_cell::sync::OnceCell as SyncOnceCell;
 use reqwest::Response;
+use ring::digest::{self, Digest};
 use semver::{Version, VersionReq};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use sha2::{Digest, Sha256};
 use tokio::{fs, sync::OnceCell};
 use tracing::{error, info, warn};
 use url::Url;
@@ -228,13 +228,11 @@ impl CiweimaoClient {
 
     #[must_use]
     #[inline]
-    fn get_default_key() -> &'static [u8; 32] {
-        static AES_KEY: SyncOnceCell<[u8; 32]> = SyncOnceCell::new();
-        AES_KEY.get_or_init(|| {
-            let mut hasher = Sha256::new();
-            hasher.update(CiweimaoClient::AES_KEY.as_bytes());
-            hasher.finalize().into()
-        })
+    fn get_default_key() -> &'static [u8] {
+        static AES_KEY: SyncOnceCell<Digest> = SyncOnceCell::new();
+        AES_KEY
+            .get_or_init(|| digest::digest(&digest::SHA256, CiweimaoClient::AES_KEY.as_bytes()))
+            .as_ref()
     }
 
     #[inline]

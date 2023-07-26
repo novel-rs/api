@@ -15,9 +15,9 @@ use hex_simd::AsciiCase;
 use image::{io::Reader, DynamicImage};
 use md5::{Digest, Md5};
 use requestty::Question;
+use ring::digest;
 use scraper::{Html, Selector};
 use serde_json::json;
-use sha2::Sha256;
 use tokio::sync::{mpsc, oneshot, OnceCell};
 use tracing::{error, info};
 use url::Url;
@@ -217,8 +217,7 @@ impl Client for CiweimaoClient {
                 let identifier = info.identifier.to_string();
 
                 let cmd = self.chapter_cmd(&identifier).await?;
-                let mut hasher = Sha256::new();
-                hasher.update(cmd.as_bytes());
+                let key = digest::digest(&digest::SHA256, cmd.as_bytes());
 
                 let response: ChapsResponse = self
                     .post(
@@ -236,7 +235,7 @@ impl Client for CiweimaoClient {
                 check_response(response.code, response.tip)?;
 
                 let conetent = CiweimaoClient::aes_256_cbc_base64_decrypt(
-                    hasher.finalize(),
+                    key,
                     response.data.unwrap().chapter_info.txt_content,
                 )?;
                 content = simdutf8::basic::from_utf8(&conetent)?.to_string();
