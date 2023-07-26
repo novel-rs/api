@@ -10,10 +10,10 @@ use tokio::{
     fs,
     io::{AsyncReadExt, AsyncWriteExt, BufReader},
 };
-use tracing::info;
+use tracing::{debug, info};
 use url::Url;
 
-use crate::{ChapterInfo, Error};
+use crate::{ChapterInfo, Error, Timing};
 use entity::{Image, Text};
 use migration::{Migrator, MigratorTrait};
 
@@ -72,9 +72,11 @@ impl NovelDB {
     }
 
     pub(crate) async fn find_text(&self, info: &ChapterInfo) -> Result<FindTextResult, Error> {
+        let mut timing = Timing::new();
+
         let identifier = info.identifier.to_string();
 
-        match Text::find_by_id(identifier).one(&self.db).await? {
+        let result = match Text::find_by_id(identifier).one(&self.db).await? {
             Some(model) => {
                 let saved_data_time = model.date_time;
                 let time = info.update_time;
@@ -92,19 +94,27 @@ impl NovelDB {
             }
 
             None => Ok(FindTextResult::None),
-        }
+        };
+
+        debug!("Time spent on `find_text`: {}", timing.elapsed()?);
+
+        result
     }
 
     pub(crate) async fn insert_text<T>(&self, info: &ChapterInfo, text: T) -> Result<(), Error>
     where
         T: AsRef<str>,
     {
+        let mut timing = Timing::new();
+
         let model = entity::text::ActiveModel {
             identifier: sea_orm::Set(info.identifier.to_string()),
             date_time: sea_orm::Set(info.update_time),
             text: sea_orm::Set(zstd_compress(text.as_ref().as_bytes()).await?),
         };
         model.insert(&self.db).await?;
+
+        debug!("Time spent on `insert_text`: {}", timing.elapsed()?);
 
         Ok(())
     }
@@ -113,6 +123,8 @@ impl NovelDB {
     where
         T: AsRef<str>,
     {
+        let mut timing = Timing::new();
+
         let model = entity::text::ActiveModel {
             identifier: sea_orm::Set(info.identifier.to_string()),
             date_time: sea_orm::Set(info.update_time),
@@ -120,13 +132,17 @@ impl NovelDB {
         };
         model.update(&self.db).await?;
 
+        debug!("Time spent on `update_text`: {}", timing.elapsed()?);
+
         Ok(())
     }
 
     pub(crate) async fn find_image(&self, url: &Url) -> Result<FindImageResult, Error> {
+        let mut timing = Timing::new();
+
         let model = Image::find_by_id(url.to_string()).one(&self.db).await?;
 
-        match model {
+        let result = match model {
             Some(model) => {
                 let bytes = zstd_decompress(&model.image).await?;
                 let image = Reader::new(Cursor::new(bytes))
@@ -136,18 +152,26 @@ impl NovelDB {
                 Ok(FindImageResult::Ok(image))
             }
             None => Ok(FindImageResult::None),
-        }
+        };
+
+        debug!("Time spent on `find_image`: {}", timing.elapsed()?);
+
+        result
     }
 
     pub(crate) async fn insert_image<T>(&self, url: &Url, bytes: T) -> Result<(), Error>
     where
         T: AsRef<[u8]>,
     {
+        let mut timing = Timing::new();
+
         let model = entity::image::ActiveModel {
             url: sea_orm::Set(url.to_string()),
             image: sea_orm::Set(zstd_compress(bytes).await?),
         };
         model.insert(&self.db).await?;
+
+        debug!("Time spent on `insert_image`: {}", timing.elapsed()?);
 
         Ok(())
     }
