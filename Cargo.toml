@@ -124,7 +124,11 @@ sea-orm = { version = "0.12.1", default-features = false, features = [
   "runtime-tokio-rustls",
 ] }
 # https://github.com/SeaQL/sea-orm
-sea-orm-migration = { version = "0.12.1", default-features = false }
+sea-orm-migration = { version = "0.12.1", default-features = false, features = [
+  "with-chrono",
+  "sqlx-sqlite",
+  "runtime-tokio-rustls",
+] }
 # https://github.com/rusqlite/rusqlite
 # See https://github.com/launchbadge/sqlx/issues/1436
 libsqlite3-sys = { version = "=0.26.0", default-features = false, features = [
