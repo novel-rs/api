@@ -17,7 +17,7 @@ categories = ["command-line-utilities"]
 # https://github.com/dtolnay/thiserror
 thiserror = { version = "1.0.44", default-features = false }
 # https://github.com/serde-rs/serde
-serde = { version = "1.0.177", default-features = false, features = [
+serde = { version = "1.0.178", default-features = false, features = [
   "std",
   "derive",
 ] }
@@ -144,7 +144,7 @@ keyring = { version = "2.0.5", default-features = false, features = [
   "linux-no-secret-service",
 ] }
 # https://github.com/Hanaasagi/machine-uid
-machine-uid = { version = "0.4.0", default-features = false }
+machine-uid = { version = "0.5.0", default-features = false }
 # https://github.com/Byron/open-rs
 open = { version = "5.0.0", default-features = false }
 # https://github.com/Dentosal/portpicker-rs
@@ -155,11 +155,8 @@ zeroize = { version = "1.6.0", default-features = false, features = [
   "aarch64",
   "derive",
 ] }
-# https://github.com/Lutetium-Vanadium/requestty
-requestty = { version = "0.5.0", default-features = false, features = [
-  "crossterm",
-  "smallvec",
-] }
+# https://github.com/console-rs/dialoguer
+dialoguer = { version = "0.10.4", default-features = false }
 
 [dev-dependencies]
 # https://github.com/dtolnay/anyhow

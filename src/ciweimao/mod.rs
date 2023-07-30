@@ -11,10 +11,10 @@ use std::{
 
 use async_trait::async_trait;
 use chrono::NaiveDateTime;
+use dialoguer::{theme::ColorfulTheme, Input};
 use hex_simd::AsciiCase;
 use image::{io::Reader, DynamicImage};
 use md5::{Digest, Md5};
-use requestty::Question;
 use ring::digest;
 use scraper::{Html, Selector};
 use serde_json::json;
@@ -733,14 +733,9 @@ impl CiweimaoClient {
             .await?;
         check_response(response.code, response.tip)?;
 
-        let ver_code = requestty::prompt_one(
-            Question::input("verification")
-                .message("Please enter SMS verification code")
-                .build(),
-        )?
-        .as_string()
-        .unwrap()
-        .to_string();
+        let ver_code: String = Input::with_theme(&ColorfulTheme::default())
+            .with_prompt("Please enter SMS verification code")
+            .interact_text()?;
 
         let response: LoginResponse = self
             .post(
