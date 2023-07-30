@@ -41,6 +41,10 @@ pub enum Error {
     CookieStore(#[from] cookie_store::Error),
     #[error(transparent)]
     StatusCode(#[from] http::status::InvalidStatusCode),
+    #[error(transparent)]
+    TomlSer(#[from] toml::ser::Error),
+    #[error("{0}")]
+    Ring(String),
     #[error("{0}")]
     NovelApi(String),
     #[error("The HTTP request failed, status code: `{code}`, message: `{msg}`")]

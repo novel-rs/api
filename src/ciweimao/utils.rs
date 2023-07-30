@@ -39,6 +39,9 @@ impl CiweimaoClient {
     const CONFIG_FILE_NAME: &str = "config.toml";
     const CONFIG_VERSION: &str = "0.1.0";
 
+    const CONFIG_FILE_PASSWORD: &str = "nupwuz-toxvif-0timNo";
+    const CONFIG_FILE_AAD: &str = "novel-rs-ciweimao";
+
     // TODO use iOS side
     const USER_AGENT: &str =
         "Android  com.kuangxiangciweimao.novel  2.9.309,OnePlus, ONEPLUS A3010, 25, 7.1.1";
@@ -72,7 +75,11 @@ impl CiweimaoClient {
                 config_file_path.display()
             );
 
-            let config = fs::read_to_string(config_file_path).await?;
+            let config = crate::decrypt(
+                config_file_path,
+                CiweimaoClient::CONFIG_FILE_PASSWORD,
+                CiweimaoClient::CONFIG_FILE_AAD,
+            )?;
             let config: Config = toml::from_str(&config)?;
 
             let req = VersionReq::parse(&format!("^{}", CiweimaoClient::CONFIG_VERSION))?;
@@ -260,9 +267,14 @@ impl CiweimaoClient {
             };
 
             let config_file_path = CiweimaoClient::config_file_path()?;
-            std::fs::write(&config_file_path, toml::to_string(&config).unwrap())?;
-
             info!("Save the config file at: `{}`", config_file_path.display());
+
+            crate::encrypt(
+                toml::to_string(&config)?,
+                config_file_path,
+                CiweimaoClient::CONFIG_FILE_PASSWORD,
+                CiweimaoClient::CONFIG_FILE_AAD,
+            )?;
 
             *self.account.write().unwrap() = None;
             *self.login_token.write().unwrap() = None;

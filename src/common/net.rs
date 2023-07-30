@@ -49,6 +49,9 @@ pub(crate) struct HTTPClientBuilder {
 impl HTTPClientBuilder {
     const COOKIE_FILE_NAME: &str = "cookie.json";
 
+    const COOKIE_FILE_PASSWORD: &str = "gafqad-4Ratne-dirqom";
+    const COOKIE_FILE_AAD: &str = "novel-rs-cookie";
+
     pub(crate) fn new(app_name: &'static str) -> Self {
         Self {
             app_name,
@@ -179,8 +182,13 @@ impl HTTPClientBuilder {
         let cookie_store = if fs::try_exists(&cookie_path).await? {
             info!("The cookie file is located at: `{}`", cookie_path.display());
 
-            let json = fs::read(&cookie_path).await?;
-            CookieStore::load_json(json.as_slice())?
+            let json = super::decrypt(
+                &cookie_path,
+                HTTPClientBuilder::COOKIE_FILE_PASSWORD,
+                HTTPClientBuilder::COOKIE_FILE_AAD,
+            )?;
+
+            CookieStore::load_json(json.as_bytes())?
         } else {
             info!(
                 "The cookie file will be created at: `{}`",
@@ -229,12 +237,7 @@ impl HTTPClient {
 
     pub(crate) fn shutdown(&self) -> Result<(), Error> {
         if self.cookie_store.read().unwrap().is_some() {
-            let cookie_path = HTTPClientBuilder::cookie_path(self.app_name)?;
-
-            info!("Save the cookie file at: `{}`", cookie_path.display());
-            let file = std::fs::File::create(cookie_path)?;
-
-            let mut writer = BufWriter::new(file);
+            let mut writer = BufWriter::new(Vec::new());
             self.cookie_store
                 .read()
                 .unwrap()
@@ -245,6 +248,20 @@ impl HTTPClient {
                 .save_json(&mut writer)?;
 
             *self.cookie_store.write().unwrap() = None;
+
+            let result = simdutf8::basic::from_utf8(writer.buffer())?.to_string();
+
+            if !result.is_empty() {
+                let cookie_path = HTTPClientBuilder::cookie_path(self.app_name)?;
+
+                info!("Save the cookie file at: `{}`", cookie_path.display());
+                super::encrypt(
+                    result,
+                    cookie_path,
+                    HTTPClientBuilder::COOKIE_FILE_PASSWORD,
+                    HTTPClientBuilder::COOKIE_FILE_AAD,
+                )?;
+            }
         }
 
         Ok(())
