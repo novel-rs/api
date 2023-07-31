@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.0] - 2023-07-31
+
+### <!-- 0 -->⛰️ Features
+
+- Encrypt cookie file and config file
+- Add database time-consuming log
+- Use sqlcipher
+- Improve SMS verification code enter
+
+### <!-- 2 -->🚜 Refactor
+
+- Refactor code slightly
+- Use dialoguer
+- Use ring instead of sha2
+- No longer use boringssl
+- No longer use parking_lot
+
+### <!-- 7 -->⚙️ Miscellaneous Tasks
+
+- Update version
+- Update version
+- No longer ignore RUSTSEC-2022-0090
+- Update deps
+- Update deps
+- Update deps
+- Update sfacg version
+- Update deps
+
 ## [0.8.0] - 2023-07-11
 
 ### <!-- 2 -->🚜 Refactor
