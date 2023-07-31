@@ -16,7 +16,7 @@ impl Keyring {
         T: AsRef<str>,
         E: AsRef<str>,
     {
-        let service = format!("novel-{}", app_name.as_ref());
+        let service = format!("novel-rs-{}", app_name.as_ref());
         let entry = Entry::new(&service, username.as_ref())?;
 
         Ok(Self { entry })
@@ -48,7 +48,7 @@ mod tests {
 
     #[tokio::test]
     async fn keyring() -> Result<(), Error> {
-        let keyring = Keyring::new("test-app", "username")?;
+        let keyring = Keyring::new("test-app", "user-name")?;
         let password = "test-password".to_string();
 
         keyring.set_password(password.clone())?;

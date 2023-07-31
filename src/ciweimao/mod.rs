@@ -756,7 +756,6 @@ impl CiweimaoClient {
         Ok((data.reader_info.account, data.login_token))
     }
 
-    // TODO use /chapter/get_chapter_cmd_s
     async fn chapter_cmd<T>(&self, identifier: T) -> Result<String, Error>
     where
         T: AsRef<str>,

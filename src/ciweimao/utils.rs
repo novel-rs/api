@@ -42,7 +42,6 @@ impl CiweimaoClient {
     const CONFIG_FILE_PASSWORD: &str = "nupwuz-toxvif-0timNo";
     const CONFIG_FILE_AAD: &str = "novel-rs-ciweimao";
 
-    // TODO use iOS side
     const USER_AGENT: &str =
         "Android  com.kuangxiangciweimao.novel  2.9.311,OnePlus, ONEPLUS A3010, 25, 7.1.1";
     const USER_AGENT_RSS: &str =

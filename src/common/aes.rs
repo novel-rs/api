@@ -11,9 +11,11 @@ use ring::{
 
 use crate::Error;
 
+#[must_use]
 struct CounterNonceSequence(u32);
 
 impl NonceSequence for CounterNonceSequence {
+    #[inline]
     fn advance(&mut self) -> Result<Nonce, Unspecified> {
         let mut nonce_bytes = vec![0; NONCE_LEN];
 

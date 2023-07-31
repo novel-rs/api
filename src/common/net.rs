@@ -59,7 +59,7 @@ impl HTTPClientBuilder {
                 "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
             ),
             accept_language: HeaderValue::from_static("zh-CN,zh;q=0.9"),
-            user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36".to_string(),
+            user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36".to_string(),
             cookie: false,
             allow_compress: true,
             proxy: None,
@@ -246,15 +246,12 @@ impl HTTPClient {
                 .lock()
                 .unwrap()
                 .save_json(&mut writer)?;
-
-            *self.cookie_store.write().unwrap() = None;
-
             let result = simdutf8::basic::from_utf8(writer.buffer())?.to_string();
 
             if !result.is_empty() {
                 let cookie_path = HTTPClientBuilder::cookie_path(self.app_name)?;
-
                 info!("Save the cookie file at: `{}`", cookie_path.display());
+
                 super::encrypt(
                     result,
                     cookie_path,
@@ -262,6 +259,8 @@ impl HTTPClient {
                     HTTPClientBuilder::COOKIE_FILE_AAD,
                 )?;
             }
+
+            *self.cookie_store.write().unwrap() = None;
         }
 
         Ok(())
