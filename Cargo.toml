@@ -17,7 +17,7 @@ categories = ["command-line-utilities"]
 # https://github.com/dtolnay/thiserror
 thiserror = { version = "1.0.44", default-features = false }
 # https://github.com/serde-rs/serde
-serde = { version = "1.0.179", default-features = false, features = [
+serde = { version = "1.0.181", default-features = false, features = [
   "std",
   "derive",
 ] }
