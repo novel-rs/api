@@ -42,7 +42,7 @@ serde_json = { version = "1.0.104", default-features = false, features = [
   "std",
 ] }
 # https://github.com/causal-agent/scraper
-scraper = { version = "0.17.1", default-features = false }
+scraper = { version = "0.18.1", default-features = false }
 # https://github.com/uuid-rs/uuid
 uuid = { version = "1.4.1", default-features = false, features = [
   "std",
