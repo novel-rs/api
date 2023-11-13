@@ -131,7 +131,7 @@ sea-orm-migration = { version = "0.12.1", default-features = false, features = [
 ] }
 # https://github.com/rusqlite/rusqlite
 # See https://github.com/launchbadge/sqlx/issues/1436
-libsqlite3-sys = { version = "=0.26.0", default-features = false, features = [
+libsqlite3-sys = { version = "=0.27.0", default-features = false, features = [
   "bundled-sqlcipher-vendored-openssl",
 ] }
 # https://github.com/toml-rs/toml
