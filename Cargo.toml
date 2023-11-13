@@ -135,7 +135,7 @@ libsqlite3-sys = { version = "=0.26.0", default-features = false, features = [
   "bundled-sqlcipher-vendored-openssl",
 ] }
 # https://github.com/toml-rs/toml
-toml = { version = "0.7.6", default-features = false, features = [
+toml = { version = "0.8.8", default-features = false, features = [
   "parse",
   "display",
 ] }
