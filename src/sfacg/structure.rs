@@ -61,10 +61,6 @@ impl Status {
 }
 
 #[must_use]
-#[derive(Serialize)]
-pub(crate) struct EmptyRequest {}
-
-#[must_use]
 #[derive(Deserialize)]
 pub(crate) struct GenericResponse {
     pub status: Status,

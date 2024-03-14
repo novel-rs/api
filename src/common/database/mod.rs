@@ -219,7 +219,6 @@ mod tests {
 
     use std::str::FromStr;
 
-    use chrono::NaiveDateTime;
     use pretty_assertions::assert_eq;
 
     use crate::Identifier;
