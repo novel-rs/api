@@ -149,7 +149,7 @@ impl Client for SfacgClient {
     }
 
     async fn novel_info(&self, id: u32) -> Result<Option<NovelInfo>, Error> {
-        assert!(id <= i32::MAX as u32);
+        assert!(id > 0 && id <= i32::MAX as u32);
 
         let response = self
             .get_query(
@@ -191,7 +191,7 @@ impl Client for SfacgClient {
         Ok(Some(novel_info))
     }
 
-    async fn volume_infos(&self, id: u32) -> Result<VolumeInfos, Error> {
+    async fn volume_infos(&self, id: u32) -> Result<Option<VolumeInfos>, Error> {
         assert!(id <= i32::MAX as u32);
 
         let response = self
@@ -199,6 +199,11 @@ impl Client for SfacgClient {
             .await?
             .json::<VolumeInfosResponse>()
             .await?;
+
+        if response.status.not_available() {
+            return Ok(None);
+        }
+
         response.status.check()?;
         let data = response.data.unwrap();
 
@@ -229,7 +234,7 @@ impl Client for SfacgClient {
             volumes.push(volume_info);
         }
 
-        Ok(volumes)
+        Ok(Some(volumes))
     }
 
     async fn content_infos(&self, info: &ChapterInfo) -> Result<ContentInfos, Error> {

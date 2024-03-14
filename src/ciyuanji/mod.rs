@@ -217,7 +217,7 @@ impl Client for CiyuanjiClient {
         }
 
         let category = if book.second_classify.is_some() {
-            Category {
+            Some(Category {
                 id: Some(book.second_classify.unwrap()),
                 parent_id: Some(book.first_classify.unwrap()),
                 name: format!(
@@ -225,24 +225,16 @@ impl Client for CiyuanjiClient {
                     book.first_classify_name.unwrap().trim(),
                     book.second_classify_name.unwrap().trim()
                 ),
-            }
-        } else {
-            Category {
+            })
+        } else if book.first_classify.is_some() {
+            Some(Category {
                 id: Some(book.first_classify.unwrap()),
                 parent_id: None,
                 name: book.first_classify_name.unwrap().trim().to_string(),
-            }
+            })
+        } else {
+            None
         };
-
-        // TODO
-        // There are some incorrect URLs
-        // let url = match Url::parse(&book.img_url.unwrap()) {
-        //     Ok(url) => Some(url),
-        //     Err(err) => {
-        //         error!("{err}");
-        //         None
-        //     }
-        // };
 
         let novel_info = NovelInfo {
             id,
@@ -255,14 +247,14 @@ impl Client for CiyuanjiClient {
             is_finished: Some(book.end_state.unwrap() == "1"),
             create_time: None,
             update_time: book.latest_update_time,
-            category: Some(category),
+            category,
             tags: self.parse_tags(book.tag_list.unwrap()).await?,
         };
 
         Ok(Some(novel_info))
     }
 
-    async fn volume_infos(&self, id: u32) -> Result<VolumeInfos, Error> {
+    async fn volume_infos(&self, id: u32) -> Result<Option<VolumeInfos>, Error> {
         let response = self
             .get_query(
                 "/chapter/getChapterListByBookId",
@@ -289,12 +281,20 @@ impl Client for CiyuanjiClient {
 
         if book_chapter.chapter_list.is_some() {
             for chapter in book_chapter.chapter_list.unwrap() {
+                let volume_title = chapter.title.unwrap_or_default().trim().to_string();
+
                 if chapter.volume_id != last_volume_id {
                     last_volume_id = chapter.volume_id;
+
                     volumes.push(VolumeInfo {
-                        title: chapter.title.trim().to_string(),
+                        title: volume_title.clone(),
                         chapter_infos: Vec::new(),
                     })
+                }
+
+                let last_volume_title = &mut volumes.last_mut().unwrap().title;
+                if last_volume_title.is_empty() && !volume_title.is_empty() {
+                    *last_volume_title = volume_title;
                 }
 
                 let chapter_info = ChapterInfo {
@@ -317,7 +317,7 @@ impl Client for CiyuanjiClient {
             }
         }
 
-        Ok(volumes)
+        Ok(Some(volumes))
     }
 
     async fn content_infos(&self, info: &ChapterInfo) -> Result<ContentInfos, Error> {

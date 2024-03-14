@@ -43,6 +43,11 @@ impl Status {
         self.http_code == StatusCode::BAD_REQUEST && self.error_code == 1050
     }
 
+    #[must_use]
+    pub(crate) fn not_available(&self) -> bool {
+        self.http_code == StatusCode::EXPECTATION_FAILED && self.error_code == 1116
+    }
+
     pub(crate) fn check(self) -> Result<(), Error> {
         if !(self.ok() || self.created()) {
             return Err(Error::Http {

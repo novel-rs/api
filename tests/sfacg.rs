@@ -11,11 +11,11 @@ async fn main() -> Result<()> {
     let novel_info = client.novel_info(novel_id).await?.unwrap();
     println!("{novel_info:#?}");
 
-    let volume_infos = client.volume_infos(novel_id).await?;
+    let volume_infos = client.volume_infos(novel_id).await?.unwrap();
     println!("{volume_infos:#?}");
 
     let content_infos = client
-        .content_infos(&volume_infos[volume_infos.len() - 1].chapter_infos[volume_infos.len() - 1])
+        .content_infos(&volume_infos[0].chapter_infos[0])
         .await?;
     println!("{content_infos:#?}");
 

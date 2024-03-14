@@ -181,6 +181,8 @@ impl Client for CiweimaoClient {
     }
 
     async fn novel_info(&self, id: u32) -> Result<Option<NovelInfo>, Error> {
+        assert!(id > 0);
+
         let response: NovelInfoResponse = self
             .post("/book/get_info_by_id", NovelInfoRequest { book_id: id })
             .await?;
@@ -208,7 +210,7 @@ impl Client for CiweimaoClient {
         Ok(Some(novel_info))
     }
 
-    async fn volume_infos(&self, id: u32) -> Result<VolumeInfos, Error> {
+    async fn volume_infos(&self, id: u32) -> Result<Option<VolumeInfos>, Error> {
         let response: VolumesResponse = self
             .post(
                 "/chapter/get_updated_chapter_by_division_new",
@@ -231,7 +233,10 @@ impl Client for CiweimaoClient {
                 let chapter_id: u32 = chapter.chapter_id.parse()?;
                 let price = chapter_prices.get(&chapter_id).copied();
 
-                assert!(price.is_some());
+                // e.g. 该章节未审核通过
+                if price.is_none() {
+                    error!("Price not found: {chapter_id}");
+                }
 
                 let chapter_info = ChapterInfo {
                     novel_id: Some(id),
@@ -252,7 +257,7 @@ impl Client for CiweimaoClient {
             volume_infos.push(volume_info);
         }
 
-        Ok(volume_infos)
+        Ok(Some(volume_infos))
     }
 
     async fn content_infos(&self, info: &ChapterInfo) -> Result<ContentInfos, Error> {

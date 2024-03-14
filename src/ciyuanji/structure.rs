@@ -224,7 +224,8 @@ pub(crate) struct Chapter {
     pub price: String,
     #[serde(with = "crate::common::date_format")]
     pub publish_time: NaiveDateTime,
-    pub title: String,
+    // 一些小说个别章节的 title 为空
+    pub title: Option<String>,
     pub volume_id: u32,
     pub word_count: u32,
 }
