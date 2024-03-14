@@ -24,7 +24,7 @@ jobs:
       matrix:
         include:
           # https://doc.rust-lang.org/rustc/platform-support.html
-          # # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories
+          # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
           - os: windows-latest

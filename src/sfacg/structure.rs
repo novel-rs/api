@@ -1,6 +1,7 @@
 use chrono::NaiveDateTime;
 use http::StatusCode;
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 use url::Url;
 use zeroize::ZeroizeOnDrop;
 
@@ -21,6 +22,12 @@ impl Status {
         self.http_code == StatusCode::OK && self.error_code == 200
     }
 
+    // for buy_chapter
+    #[must_use]
+    pub(crate) fn created(&self) -> bool {
+        self.http_code == StatusCode::CREATED && self.error_code == 200
+    }
+
     #[must_use]
     pub(crate) fn not_found(&self) -> bool {
         self.http_code == StatusCode::NOT_FOUND && self.error_code == 404
@@ -31,8 +38,13 @@ impl Status {
         self.http_code == StatusCode::UNAUTHORIZED && self.error_code == 502
     }
 
+    #[must_use]
+    pub(crate) fn already_signed_in(&self) -> bool {
+        self.http_code == StatusCode::BAD_REQUEST && self.error_code == 1050
+    }
+
     pub(crate) fn check(self) -> Result<(), Error> {
-        if !self.ok() {
+        if !(self.ok() || self.created()) {
             return Err(Error::Http {
                 code: StatusCode::from_u16(self.http_code)?,
                 msg: self.msg.unwrap().trim().to_string(),
@@ -44,37 +56,90 @@ impl Status {
 }
 
 #[must_use]
+#[derive(Serialize)]
+pub(crate) struct EmptyRequest {}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct GenericResponse {
+    pub status: Status,
+}
+
+#[must_use]
 #[derive(Serialize, ZeroizeOnDrop)]
-#[serde(rename_all = "camelCase")]
-pub(crate) struct LoginRequest {
-    pub user_name: String,
-    pub pass_word: String,
+pub(crate) struct LogInRequest {
+    pub username: String,
+    pub password: String,
 }
 
 #[must_use]
 #[derive(Deserialize)]
-pub(crate) struct LoginResponse {
+pub(crate) struct UserInfoResponse {
     pub status: Status,
-}
-
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct PositionResponse {
-    pub status: Status,
-}
-
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct UserResponse {
-    pub status: Status,
-    pub data: Option<UserData>,
+    pub data: Option<UserInfoData>,
 }
 
 #[must_use]
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct UserData {
+pub(crate) struct UserInfoData {
     pub nick_name: String,
+    pub avatar: Url,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct MoneyResponse {
+    pub status: Status,
+    pub data: Option<MoneyData>,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct MoneyData {
+    // 火券
+    pub fire_money_remain: u32,
+    // 代券
+    pub coupons_remain: u32,
+}
+
+#[must_use]
+#[derive(Serialize)]
+pub(crate) struct SignRequest {
+    pub sign_date: String,
+}
+
+#[must_use]
+#[derive(Serialize)]
+pub(crate) struct BookshelfInfoRequest {
+    pub expand: &'static str,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct BookshelfInfoResponse {
+    pub status: Status,
+    pub data: Option<Vec<BookshelfInfoData>>,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct BookshelfInfoData {
+    pub expand: Option<BookshelfInfoExpand>,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct BookshelfInfoExpand {
+    pub novels: Option<Vec<BookshelfInfoNovelInfo>>,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct BookshelfInfoNovelInfo {
+    pub novel_id: u32,
 }
 
 #[must_use]
@@ -99,6 +164,7 @@ pub(crate) struct NovelInfoData {
     pub author_name: String,
     pub char_count: i32,
     pub type_id: u16,
+    pub sign_status: String,
     pub is_finish: bool,
     pub add_time: NaiveDateTime,
     pub last_update_time: NaiveDateTime,
@@ -124,35 +190,36 @@ pub(crate) struct NovelInfoSysTag {
 
 #[must_use]
 #[derive(Deserialize)]
-pub(crate) struct NovelsDirsResponse {
+pub(crate) struct VolumeInfosResponse {
     pub status: Status,
-    pub data: Option<NovelsDirsData>,
+    pub data: Option<VolumeInfosData>,
 }
 
 #[must_use]
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct NovelsDirsData {
-    pub volume_list: Vec<NovelsDirsVolumeInfo>,
+pub(crate) struct VolumeInfosData {
+    pub volume_list: Vec<VolumeInfosVolume>,
 }
 
 #[must_use]
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct NovelsDirsVolumeInfo {
+pub(crate) struct VolumeInfosVolume {
     pub title: String,
-    pub chapter_list: Vec<NovelsDirsChapterInfo>,
+    pub chapter_list: Vec<VolumeInfosChapter>,
 }
 
 #[must_use]
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct NovelsDirsChapterInfo {
+pub(crate) struct VolumeInfosChapter {
+    pub novel_id: u32,
     pub chap_id: u32,
     pub title: String,
-    pub char_count: i16,
+    pub char_count: u32,
     pub is_vip: bool,
-    pub need_fire_money: i16,
+    pub need_fire_money: u16,
     #[serde(rename = "AddTime")]
     pub add_time: NaiveDateTime,
     pub update_time: Option<NaiveDateTime>,
@@ -160,99 +227,40 @@ pub(crate) struct NovelsDirsChapterInfo {
 
 #[must_use]
 #[derive(Serialize)]
-pub(crate) struct ChapsRequest {
+#[serde(rename_all = "camelCase")]
+pub(crate) struct ContentInfosRequest {
     pub expand: &'static str,
 }
 
 #[must_use]
 #[derive(Deserialize)]
-pub(crate) struct ChapsResponse {
+pub(crate) struct ContentInfosResponse {
     pub status: Status,
-    pub data: Option<ChapsData>,
+    pub data: Option<ContentInfosData>,
 }
 
 #[must_use]
 #[derive(Deserialize)]
-pub(crate) struct ChapsData {
-    pub expand: ChapsExpand,
+pub(crate) struct ContentInfosData {
+    pub expand: ContentInfosExpand,
 }
 
 #[must_use]
 #[derive(Deserialize)]
-pub(crate) struct ChapsExpand {
+#[serde(rename_all = "camelCase")]
+pub(crate) struct ContentInfosExpand {
     pub content: String,
+    pub is_content_encrypted: bool,
 }
 
 #[must_use]
 #[derive(Serialize)]
-pub(crate) struct SearchRequest {
-    pub page: u16,
-    pub q: String,
-    pub size: u16,
-    pub sort: &'static str,
-}
-
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct SearchResponse {
-    pub status: Status,
-    pub data: Option<SearchData>,
-}
-
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct SearchData {
-    pub novels: Vec<SearchNovelInfo>,
-}
-
-#[must_use]
-#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct SearchNovelInfo {
-    pub novel_id: u32,
-}
-
-#[must_use]
-#[derive(Serialize)]
-pub(crate) struct BookshelfRequest {
-    pub expand: &'static str,
-}
-
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct BookshelfResponse {
-    pub status: Status,
-    pub data: Option<Vec<BookshelfData>>,
-}
-
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct BookshelfData {
-    pub expand: BookshelfExpand,
-}
-
-#[must_use]
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub(crate) enum BookshelfExpand {
-    Albums(Vec<BookshelfAlbumsInfo>),
-    Comics(Vec<BookshelfComicsInfo>),
-    Novels(Vec<BookshelfNovelInfo>),
-}
-
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct BookshelfAlbumsInfo {}
-
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct BookshelfComicsInfo {}
-
-#[must_use]
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub(crate) struct BookshelfNovelInfo {
-    pub novel_id: u32,
+pub(crate) struct BuyChapterRequest {
+    pub order_all: bool,
+    pub auto_order: bool,
+    pub chap_ids: Vec<u32>,
+    pub order_type: &'static str,
 }
 
 #[must_use]
@@ -274,33 +282,75 @@ pub(crate) struct CategoryData {
 #[derive(Deserialize)]
 pub(crate) struct TagResponse {
     pub status: Status,
-    pub data: Option<Vec<TagData>>,
+    pub data: Option<Vec<Tag>>,
 }
 
 #[must_use]
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct TagData {
+pub(crate) struct Tag {
     pub sys_tag_id: u16,
     pub tag_name: String,
 }
 
 #[must_use]
+#[skip_serializing_none]
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct SearchRequest {
+    pub q: String,
+    pub is_finish: i8,
+    pub update_days: i8,
+    pub systagids: Option<String>,
+    pub page: u16,
+    pub size: u16,
+    pub sort: &'static str,
+    pub expand: &'static str,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct SearchResponse {
+    pub status: Status,
+    pub data: Option<SearchData>,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct SearchData {
+    pub novels: Vec<SearchNovelInfo>,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct SearchNovelInfo {
+    pub novel_id: u32,
+    pub sign_status: String,
+    pub char_count: i32,
+    pub type_id: u16,
+    pub expand: SearchExpand,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct SearchExpand {
+    pub sys_tags: Vec<NovelInfoSysTag>,
+}
+
+#[must_use]
+#[skip_serializing_none]
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct NovelsRequest {
-    pub fields: &'static str,
-    pub char_count_begin: u32,
-    pub char_count_end: u32,
-    #[serde(rename = "isfinish")]
-    pub is_finish: &'static str,
-    #[serde(rename = "isfree")]
-    pub is_free: &'static str,
-    #[serde(rename = "systagids")]
-    pub sys_tag_ids: Option<String>,
-    #[serde(rename = "notexcludesystagids")]
-    pub not_exclude_sys_tag_ids: Option<String>,
-    pub updatedays: Option<u8>,
+    pub charcountbegin: u32,
+    pub charcountend: u32,
+    pub updatedays: i8,
+    pub isfinish: &'static str,
+    pub isfree: &'static str,
+    pub systagids: Option<String>,
+    pub notexcludesystagids: Option<String>,
     pub page: u16,
     pub size: u16,
     pub sort: &'static str,

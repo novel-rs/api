@@ -3,7 +3,6 @@ use tracing::error;
 use uuid::Uuid;
 
 #[must_use]
-#[inline]
 pub(crate) fn uid() -> &'static String {
     static UID: OnceCell<String> = OnceCell::new();
 

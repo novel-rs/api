@@ -20,8 +20,6 @@ pub enum Error {
     #[error(transparent)]
     SerdeJson(#[from] serde_json::Error),
     #[error(transparent)]
-    Semver(#[from] semver::Error),
-    #[error(transparent)]
     Toml(#[from] toml::de::Error),
     #[error(transparent)]
     Simdutf8(#[from] simdutf8::basic::Utf8Error),
@@ -43,8 +41,16 @@ pub enum Error {
     StatusCode(#[from] http::status::InvalidStatusCode),
     #[error(transparent)]
     TomlSer(#[from] toml::ser::Error),
+    #[error(transparent)]
+    InvalidHeaderValue(#[from] http::header::InvalidHeaderValue),
+    #[error(transparent)]
+    Dialoguer(#[from] dialoguer::Error),
     #[error("{0}")]
     Ring(String),
+    #[error("{0}")]
+    Webp(String),
+    #[error("{0}")]
+    Port(String),
     #[error("{0}")]
     NovelApi(String),
     #[error("The HTTP request failed, status code: `{code}`, message: `{msg}`")]

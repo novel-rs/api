@@ -1,26 +1,18 @@
+use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
+use url::Url;
 use zeroize::ZeroizeOnDrop;
-
-use crate::{CiweimaoClient, Error};
-
-pub(crate) fn check_response(code: String, tip: Option<String>) -> Result<(), Error> {
-    if code != CiweimaoClient::OK {
-        Err(Error::NovelApi(format!(
-            "ciweimao request failed, code: `{code}`, msg: `{}`",
-            tip.unwrap().trim()
-        )))
-    } else {
-        Ok(())
-    }
-}
 
 #[must_use]
 #[derive(Serialize)]
-pub(crate) struct UserInfoRequest {
-    pub app_version: &'static str,
-    pub device_token: &'static str,
-    pub account: String,
-    pub login_token: String,
+pub(crate) struct EmptyRequest {}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct GenericResponse {
+    pub code: String,
+    pub tip: Option<String>,
 }
 
 #[must_use]
@@ -41,160 +33,45 @@ pub(crate) struct UserInfoData {
 #[derive(Deserialize)]
 pub(crate) struct UserInfoReaderInfo {
     pub reader_name: String,
+    // 当头像不存在时，是空字符串
+    #[serde(with = "crate::ciweimao::parse_url")]
+    pub avatar_url: Option<Url>,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct PropInfoResponse {
+    pub code: String,
+    pub tip: Option<String>,
+    pub data: Option<PropInfoData>,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct PropInfoData {
+    pub prop_info: PropInfo,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct PropInfo {
+    // 猫饼干 + 代币
+    pub rest_hlb: String,
 }
 
 #[must_use]
 #[derive(Serialize)]
-pub(crate) struct NovelInfoRequest {
-    pub app_version: &'static str,
-    pub device_token: &'static str,
-    pub account: String,
-    pub login_token: String,
-    pub book_id: u32,
-}
-
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct NovelInfoResponse {
-    pub code: String,
-    pub tip: Option<String>,
-    pub data: Option<NovelInfoData>,
-}
-
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct NovelInfoData {
-    pub book_info: NovelInfoBookInfo,
-}
-
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct NovelInfoBookInfo {
-    pub book_name: String,
-    pub author_name: String,
-    pub cover: String,
-    pub description: String,
-    pub total_word_count: String,
-    pub up_status: String,
-    pub newtime: String,
-    pub uptime: String,
-    pub category_index: String,
-    pub tag: String,
-}
-
-#[must_use]
-#[derive(Serialize)]
-pub(crate) struct VolumesRequest {
-    pub app_version: &'static str,
-    pub device_token: &'static str,
-    pub account: String,
-    pub login_token: String,
-    pub book_id: u32,
-}
-
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct VolumesResponse {
-    pub code: String,
-    pub tip: Option<String>,
-    pub data: Option<VolumesData>,
-}
-
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct VolumesData {
-    pub chapter_list: Vec<VolumesVolumeInfo>,
-}
-
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct VolumesVolumeInfo {
-    pub division_name: String,
-    pub chapter_list: Vec<VolumesChapterInfo>,
-}
-
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct VolumesChapterInfo {
-    pub chapter_id: String,
-    pub chapter_title: String,
-    pub word_count: String,
-    pub mtime: String,
-    pub is_valid: String,
-    pub auth_access: String,
-}
-
-#[must_use]
-#[derive(Serialize)]
-pub(crate) struct ChapsRequest {
-    pub app_version: &'static str,
-    pub device_token: &'static str,
-    pub account: String,
-    pub login_token: String,
-    pub chapter_id: String,
-    pub chapter_command: String,
-}
-
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct ChapsResponse {
-    pub code: String,
-    pub tip: Option<String>,
-    pub data: Option<ChapsData>,
-}
-
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct ChapsData {
-    pub chapter_info: ChapsInfo,
-}
-
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct ChapsInfo {
-    pub txt_content: String,
-}
-
-#[must_use]
-#[derive(Serialize)]
-pub(crate) struct SearchRequest {
-    pub app_version: &'static str,
-    pub device_token: &'static str,
-    pub account: String,
-    pub login_token: String,
-    pub key: String,
-    pub count: u16,
-    pub page: u16,
-}
-
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct SearchResponse {
-    pub code: String,
-    pub tip: Option<String>,
-    pub data: Option<SearchData>,
-}
-
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct SearchData {
-    pub book_list: Vec<SearchNovelInfo>,
-}
-
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct SearchNovelInfo {
-    pub book_id: String,
+pub(crate) struct SignRequest {
+    pub task_type: u8,
 }
 
 #[must_use]
 #[derive(Serialize)]
 pub(crate) struct BookshelfRequest {
-    pub app_version: &'static str,
-    pub device_token: &'static str,
-    pub account: String,
-    pub login_token: String,
     pub shelf_id: u32,
+    pub count: u16,
+    pub page: u16,
+    pub order: &'static str,
 }
 
 #[must_use]
@@ -225,11 +102,127 @@ pub(crate) struct BookshelfNovelInfo {
 
 #[must_use]
 #[derive(Serialize)]
-pub(crate) struct CategoryRequest {
-    pub app_version: &'static str,
-    pub device_token: &'static str,
-    pub account: String,
-    pub login_token: String,
+pub(crate) struct NovelInfoRequest {
+    pub book_id: u32,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct NovelInfoResponse {
+    pub code: String,
+    pub tip: Option<String>,
+    pub data: Option<NovelInfoData>,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct NovelInfoData {
+    pub book_info: BookInfo,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct BookInfo {
+    pub book_name: String,
+    pub author_name: String,
+    // 有一些小说 cover 为空
+    #[serde(with = "crate::ciweimao::parse_url")]
+    pub cover: Option<Url>,
+    pub description: String,
+    pub total_word_count: String,
+    #[serde(with = "crate::ciweimao::parse_bool")]
+    pub is_paid: bool,
+    #[serde(with = "crate::ciweimao::parse_bool")]
+    pub up_status: bool,
+    // 有一些小说 newtime 为空
+    #[serde(with = "crate::common::date_format_option")]
+    pub newtime: Option<NaiveDateTime>,
+    #[serde(with = "crate::common::date_format")]
+    pub uptime: NaiveDateTime,
+    pub category_index: String,
+    pub tag_list: Vec<NovelInfoTag>,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct NovelInfoTag {
+    pub tag_name: String,
+}
+
+#[must_use]
+#[derive(Serialize)]
+pub(crate) struct VolumesRequest {
+    pub book_id: u32,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct VolumesResponse {
+    pub code: String,
+    pub tip: Option<String>,
+    pub data: Option<VolumesData>,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct VolumesData {
+    pub chapter_list: Vec<VolumeInfo>,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct VolumeInfo {
+    pub division_name: String,
+    pub chapter_list: Vec<ChapterInfo>,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct ChapterInfo {
+    pub chapter_id: String,
+    pub chapter_title: String,
+    pub word_count: String,
+    #[serde(with = "crate::common::date_format")]
+    pub mtime: NaiveDateTime,
+    #[serde(with = "crate::ciweimao::parse_bool")]
+    pub is_valid: bool,
+    #[serde(with = "crate::ciweimao::parse_bool")]
+    pub is_paid: bool,
+    #[serde(with = "crate::ciweimao::parse_bool")]
+    pub auth_access: bool,
+}
+
+#[must_use]
+#[derive(Serialize)]
+pub(crate) struct BuyRequest {
+    pub chapter_id: String,
+}
+
+#[must_use]
+#[derive(Serialize)]
+pub(crate) struct ChapsRequest {
+    pub chapter_id: String,
+    pub chapter_command: String,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct ChapsResponse {
+    pub code: String,
+    pub tip: Option<String>,
+    pub data: Option<ChapsData>,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct ChapsData {
+    pub chapter_info: ChapsInfo,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct ChapsInfo {
+    pub txt_content: String,
 }
 
 #[must_use]
@@ -243,12 +236,12 @@ pub(crate) struct CategoryResponse {
 #[must_use]
 #[derive(Deserialize)]
 pub(crate) struct CategoryData {
-    pub category_list: Vec<CategoryCategory>,
+    pub category_list: Vec<Category>,
 }
 
 #[must_use]
 #[derive(Deserialize)]
-pub(crate) struct CategoryCategory {
+pub(crate) struct Category {
     pub category_detail: Vec<CategoryDetail>,
 }
 
@@ -257,15 +250,6 @@ pub(crate) struct CategoryCategory {
 pub(crate) struct CategoryDetail {
     pub category_index: String,
     pub category_name: String,
-}
-
-#[must_use]
-#[derive(Serialize)]
-pub(crate) struct TagRequest {
-    pub app_version: &'static str,
-    pub device_token: &'static str,
-    pub account: String,
-    pub login_token: String,
 }
 
 #[must_use]
@@ -279,27 +263,25 @@ pub(crate) struct TagResponse {
 #[must_use]
 #[derive(Deserialize)]
 pub(crate) struct TagData {
-    pub official_tag_list: Vec<TagTag>,
+    pub official_tag_list: Vec<Tag>,
 }
 
 #[must_use]
 #[derive(Deserialize)]
-pub(crate) struct TagTag {
+pub(crate) struct Tag {
     pub tag_name: String,
 }
 
 #[must_use]
+#[skip_serializing_none]
 #[derive(Serialize)]
-pub(crate) struct NovelsRequest {
-    pub app_version: &'static str,
-    pub device_token: &'static str,
-    pub account: String,
-    pub login_token: String,
+pub(crate) struct SearchRequest {
     pub count: u16,
     pub page: u16,
-    pub category_index: u16,
     pub order: &'static str,
+    pub category_index: u16,
     pub tags: String,
+    pub key: Option<String>,
     pub is_paid: Option<u8>,
     pub up_status: Option<u8>,
     pub filter_uptime: Option<u8>,
@@ -308,29 +290,31 @@ pub(crate) struct NovelsRequest {
 
 #[must_use]
 #[derive(Deserialize)]
-pub(crate) struct NovelsResponse {
+pub(crate) struct SearchResponse {
     pub code: String,
     pub tip: Option<String>,
-    pub data: Option<NovelsData>,
+    pub data: Option<SearchData>,
 }
 
 #[must_use]
 #[derive(Deserialize)]
-pub(crate) struct NovelsData {
-    pub book_list: Vec<NovelsInfo>,
+pub(crate) struct SearchData {
+    pub book_list: Vec<SearchInfo>,
 }
 
 #[must_use]
 #[derive(Deserialize)]
-pub(crate) struct NovelsInfo {
+pub(crate) struct SearchInfo {
     pub book_id: String,
+    pub total_word_count: String,
+    #[serde(with = "crate::common::date_format")]
+    pub uptime: NaiveDateTime,
+    pub tag_list: Vec<NovelInfoTag>,
 }
 
 #[must_use]
 #[derive(Serialize)]
 pub(crate) struct UseGeetestRequest {
-    pub app_version: &'static str,
-    pub device_token: &'static str,
     pub login_name: String,
 }
 
@@ -351,31 +335,25 @@ pub(crate) struct UseGeetestData {
 #[must_use]
 #[derive(Serialize)]
 pub(crate) struct GeetestInfoRequest {
-    pub t: u64,
+    pub t: u128,
     pub user_id: String,
 }
 
 #[must_use]
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub(crate) struct GeetestInfoResponse {
     pub success: u8,
+    pub new_captcha: bool,
     pub gt: String,
     pub challenge: String,
-    pub new_captcha: bool,
 }
 
 #[must_use]
 #[derive(Serialize, ZeroizeOnDrop)]
 pub(crate) struct SendVerifyCodeRequest {
-    pub account: String,
-    #[zeroize(skip)]
-    pub app_version: &'static str,
-    #[zeroize(skip)]
-    pub device_token: &'static str,
-    pub hashvalue: String,
     pub login_name: String,
-    pub timestamp: String,
-    pub verify_type: String,
+    pub timestamp: u128,
+    pub verify_type: u8,
 }
 
 #[must_use]
@@ -395,10 +373,6 @@ pub(crate) struct SendVerifyCodeData {
 #[must_use]
 #[derive(Serialize, ZeroizeOnDrop)]
 pub(crate) struct LoginRequest {
-    #[zeroize(skip)]
-    pub app_version: &'static str,
-    #[zeroize(skip)]
-    pub device_token: &'static str,
     pub login_name: String,
     pub passwd: String,
 }
@@ -406,10 +380,6 @@ pub(crate) struct LoginRequest {
 #[must_use]
 #[derive(Serialize, ZeroizeOnDrop)]
 pub(crate) struct LoginCaptchaRequest {
-    #[zeroize(skip)]
-    pub app_version: &'static str,
-    #[zeroize(skip)]
-    pub device_token: &'static str,
     pub login_name: String,
     pub passwd: String,
     pub geetest_seccode: String,
@@ -420,10 +390,6 @@ pub(crate) struct LoginCaptchaRequest {
 #[must_use]
 #[derive(Serialize, ZeroizeOnDrop)]
 pub(crate) struct LoginSMSRequest {
-    #[zeroize(skip)]
-    pub app_version: &'static str,
-    #[zeroize(skip)]
-    pub device_token: &'static str,
     pub login_name: String,
     pub passwd: String,
     pub to_code: String,
@@ -442,22 +408,65 @@ pub(crate) struct LoginResponse {
 #[derive(Deserialize)]
 pub(crate) struct LoginData {
     pub login_token: String,
-    pub reader_info: LoginReaderInfo,
+    pub reader_info: ReaderInfo,
 }
 
 #[must_use]
 #[derive(Deserialize)]
-pub(crate) struct LoginReaderInfo {
+pub(crate) struct ReaderInfo {
     pub account: String,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct ShelfListResponse {
+    pub code: String,
+    pub tip: Option<String>,
+    pub data: Option<ShelfListData>,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct ShelfListData {
+    pub shelf_list: Vec<Shelf>,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct Shelf {
+    pub shelf_id: String,
+}
+
+#[must_use]
+#[derive(Serialize)]
+pub(crate) struct PriceRequest {
+    pub book_id: u32,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct PriceResponse {
+    pub code: String,
+    pub tip: Option<String>,
+    pub data: Option<PriceData>,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct PriceData {
+    pub chapter_permission_list: Vec<ChapterPermission>,
+}
+
+#[must_use]
+#[derive(Deserialize)]
+pub(crate) struct ChapterPermission {
+    pub chapter_id: String,
+    pub unit_hlb: String,
 }
 
 #[must_use]
 #[derive(Serialize)]
 pub(crate) struct ChapterCmdRequest {
-    pub app_version: &'static str,
-    pub device_token: &'static str,
-    pub account: String,
-    pub login_token: String,
     pub chapter_id: String,
 }
 
@@ -475,31 +484,38 @@ pub(crate) struct ChapterCmdData {
     pub command: String,
 }
 
-#[must_use]
-#[derive(Serialize)]
-pub(crate) struct ShelfListRequest {
-    pub app_version: &'static str,
-    pub device_token: &'static str,
-    pub account: String,
-    pub login_token: String,
+pub(crate) mod parse_bool {
+    use serde::{Deserialize, Deserializer};
+
+    pub(crate) fn deserialize<'de, D>(deserializer: D) -> Result<bool, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+
+        assert!(!s.is_empty());
+
+        if s == "1" {
+            Ok(true)
+        } else {
+            Ok(false)
+        }
+    }
 }
 
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct ShelfListResponse {
-    pub code: String,
-    pub tip: Option<String>,
-    pub data: Option<ShelfListData>,
-}
+pub(crate) mod parse_url {
+    use serde::{Deserialize, Deserializer};
+    use url::Url;
 
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct ShelfListData {
-    pub shelf_list: Vec<ShelfList>,
-}
+    pub(crate) fn deserialize<'de, D>(deserializer: D) -> Result<Option<Url>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
 
-#[must_use]
-#[derive(Deserialize)]
-pub(crate) struct ShelfList {
-    pub shelf_id: String,
+        match Url::parse(&s) {
+            Ok(url) => Ok(Some(url)),
+            Err(_) => Ok(None),
+        }
+    }
 }

@@ -3,12 +3,11 @@ use std::{
     ops::Deref,
     path::{Path, PathBuf},
     sync::{Arc, RwLock},
-    time::Duration,
 };
 
-use http::StatusCode;
+use http::{header::IntoHeaderName, StatusCode};
 use reqwest::{
-    header::{HeaderMap, HeaderValue, ACCEPT, ACCEPT_LANGUAGE, CONNECTION},
+    header::{HeaderMap, HeaderValue, ACCEPT},
     redirect, Certificate, Client, Proxy,
 };
 use reqwest_cookie_store::{CookieStore, CookieStoreMutex};
@@ -18,7 +17,6 @@ use url::Url;
 
 use crate::Error;
 
-#[inline]
 pub(crate) fn check_status<T>(code: StatusCode, msg: T) -> Result<(), Error>
 where
     T: AsRef<str>,
@@ -36,48 +34,39 @@ where
 #[must_use]
 pub(crate) struct HTTPClientBuilder {
     app_name: &'static str,
-    accept: HeaderValue,
-    accept_language: HeaderValue,
+    accept: Option<HeaderValue>,
     user_agent: String,
     cookie: bool,
     allow_compress: bool,
     proxy: Option<Url>,
     no_proxy: bool,
     cert_path: Option<PathBuf>,
+    headers: HeaderMap,
 }
 
 impl HTTPClientBuilder {
-    const COOKIE_FILE_NAME: &str = "cookie.json";
+    const COOKIE_FILE_NAME: &'static str = "cookie.json";
 
-    const COOKIE_FILE_PASSWORD: &str = "gafqad-4Ratne-dirqom";
-    const COOKIE_FILE_AAD: &str = "novel-rs-cookie";
+    const COOKIE_FILE_PASSWORD: &'static str = "gafqad-4Ratne-dirqom";
+    const COOKIE_FILE_AAD: &'static str = "novel-rs-cookie";
 
     pub(crate) fn new(app_name: &'static str) -> Self {
         Self {
             app_name,
-            accept: HeaderValue::from_static(
-                "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-            ),
-            accept_language: HeaderValue::from_static("zh-CN,zh;q=0.9"),
-            user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36".to_string(),
+            accept: None,
+            user_agent: String::from("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"),
             cookie: false,
             allow_compress: true,
             proxy: None,
             no_proxy: false,
             cert_path: None,
+            headers: HeaderMap::new()
         }
     }
 
     pub(crate) fn accept(self, accept: &'static str) -> Self {
         Self {
-            accept: HeaderValue::from_static(accept),
-            ..self
-        }
-    }
-
-    pub(crate) fn accept_language(self, accept_language: &'static str) -> Self {
-        Self {
-            accept_language: HeaderValue::from_static(accept_language),
+            accept: Some(HeaderValue::from_static(accept)),
             ..self
         }
     }
@@ -127,22 +116,30 @@ impl HTTPClientBuilder {
         }
     }
 
+    pub(crate) fn add_header<K>(self, key: K, value: HeaderValue) -> Self
+    where
+        K: IntoHeaderName,
+    {
+        let mut result = self;
+        result.headers.append(key, value);
+
+        result
+    }
+
     pub(crate) async fn build(self) -> Result<HTTPClient, Error> {
         let mut cookie_store = None;
         if self.cookie {
             cookie_store = Some(Arc::new(self.create_cookie_store().await?));
         }
 
-        let mut headers = HeaderMap::new();
-        headers.insert(ACCEPT, self.accept);
-        headers.insert(ACCEPT_LANGUAGE, self.accept_language);
-        headers.insert(CONNECTION, HeaderValue::from_static("keep-alive"));
+        let mut headers = self.headers;
+        if self.accept.is_some() {
+            headers.insert(ACCEPT, self.accept.unwrap());
+        }
 
         let mut client_builder = Client::builder()
             .default_headers(headers)
             .redirect(redirect::Policy::none())
-            .http2_keep_alive_interval(Duration::from_secs(10))
-            .http2_keep_alive_timeout(Duration::from_secs(60))
             .user_agent(self.user_agent);
 
         if self.cookie {
@@ -182,7 +179,7 @@ impl HTTPClientBuilder {
         let cookie_store = if fs::try_exists(&cookie_path).await? {
             info!("The cookie file is located at: `{}`", cookie_path.display());
 
-            let json = super::decrypt(
+            let json = super::aes_256_gcm_base64_decrypt(
                 &cookie_path,
                 HTTPClientBuilder::COOKIE_FILE_PASSWORD,
                 HTTPClientBuilder::COOKIE_FILE_AAD,
@@ -239,9 +236,9 @@ impl HTTPClient {
         if self.cookie_store.read().unwrap().is_some() {
             let mut writer = BufWriter::new(Vec::new());
             self.cookie_store
-                .read()
+                .write()
                 .unwrap()
-                .as_ref()
+                .take()
                 .unwrap()
                 .lock()
                 .unwrap()
@@ -252,15 +249,13 @@ impl HTTPClient {
                 let cookie_path = HTTPClientBuilder::cookie_path(self.app_name)?;
                 info!("Save the cookie file at: `{}`", cookie_path.display());
 
-                super::encrypt(
+                super::aes_256_gcm_base64_encrypt(
                     result,
                     cookie_path,
                     HTTPClientBuilder::COOKIE_FILE_PASSWORD,
                     HTTPClientBuilder::COOKIE_FILE_AAD,
                 )?;
             }
-
-            *self.cookie_store.write().unwrap() = None;
         }
 
         Ok(())
@@ -277,8 +272,8 @@ impl Deref for HTTPClient {
 
 impl Drop for HTTPClient {
     fn drop(&mut self) {
-        if let Err(error) = self.shutdown() {
-            error!("Fail to save cookie: {error}");
+        if let Err(err) = self.shutdown() {
+            error!("Fail to save cookie: {err}");
         }
     }
 }

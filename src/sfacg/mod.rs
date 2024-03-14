@@ -1,15 +1,13 @@
 mod structure;
 mod utils;
 
-use std::{
-    io::Cursor,
-    path::{Path, PathBuf},
-};
+use std::{io::Cursor, path::PathBuf};
 
-use async_trait::async_trait;
+use chrono::{DateTime, Utc};
+use chrono_tz::{Asia::Shanghai, Tz};
 use image::{io::Reader, DynamicImage};
 use tokio::sync::OnceCell;
-use tracing::error;
+use tracing::{error, info};
 use url::Url;
 
 use crate::{
@@ -32,7 +30,6 @@ pub struct SfacgClient {
     db: OnceCell<NovelDB>,
 }
 
-#[async_trait]
 impl Client for SfacgClient {
     fn proxy(&mut self, proxy: Url) {
         self.proxy = Some(proxy);
@@ -42,11 +39,8 @@ impl Client for SfacgClient {
         self.no_proxy = true;
     }
 
-    fn cert<T>(&mut self, cert_path: T)
-    where
-        T: AsRef<Path>,
-    {
-        self.cert_path = Some(cert_path.as_ref().to_path_buf());
+    fn cert(&mut self, cert_path: PathBuf) {
+        self.cert_path = Some(cert_path);
     }
 
     async fn shutdown(&self) -> Result<(), Error> {
@@ -54,46 +48,104 @@ impl Client for SfacgClient {
     }
 
     async fn add_cookie(&self, cookie_str: &str, url: &Url) -> Result<(), Error> {
-        Ok(self.client().await?.add_cookie(cookie_str, url)?)
+        self.client().await?.add_cookie(cookie_str, url)
     }
 
-    async fn login(&self, username: String, password: String) -> Result<(), Error> {
-        let response = self
-            .post(
-                "/sessions",
-                &LoginRequest {
-                    user_name: username,
-                    pass_word: password,
-                },
-            )
-            .await?
-            .json::<LoginResponse>()
-            .await?;
-        response.status.check()?;
+    async fn log_in(&self, username: String, password: Option<String>) -> Result<(), Error> {
+        assert!(!username.is_empty());
+        assert!(password.is_some());
 
-        // TODO Is it really necessary?
+        let password = password.unwrap();
+
         let response = self
-            .get("/position")
+            .post("/sessions", LogInRequest { username, password })
             .await?
-            .json::<PositionResponse>()
+            .json::<GenericResponse>()
             .await?;
         response.status.check()?;
 
         Ok(())
     }
 
-    async fn user_info(&self) -> Result<Option<UserInfo>, Error> {
-        let response = self.get("/user").await?.json::<UserResponse>().await?;
+    async fn logged_in(&self) -> Result<bool, Error> {
+        let response = self.get("/user").await?.json::<GenericResponse>().await?;
+
         if response.status.unauthorized() {
-            return Ok(None);
+            Ok(false)
+        } else {
+            response.status.check()?;
+            Ok(true)
         }
+    }
+
+    async fn user_info(&self) -> Result<UserInfo, Error> {
+        let response = self.get("/user").await?.json::<UserInfoResponse>().await?;
         response.status.check()?;
+        let data = response.data.unwrap();
 
-        let user_info = UserInfo {
-            nickname: response.data.unwrap().nick_name.trim().to_string(),
-        };
+        Ok(UserInfo {
+            nickname: data.nick_name.trim().to_string(),
+            avatar: Some(data.avatar),
+        })
+    }
 
-        Ok(Some(user_info))
+    async fn money(&self) -> Result<u32, Error> {
+        let response = self
+            .get("/user/money")
+            .await?
+            .json::<MoneyResponse>()
+            .await?;
+        response.status.check()?;
+        let data = response.data.unwrap();
+
+        Ok(data.fire_money_remain + data.coupons_remain)
+    }
+
+    async fn sign(&self) -> Result<(), Error> {
+        let now: DateTime<Tz> = Utc::now().with_timezone(&Shanghai);
+
+        let response = self
+            .put(
+                "/user/newSignInfo",
+                SignRequest {
+                    sign_date: now.format("%Y-%m-%d").to_string(),
+                },
+            )
+            .await?
+            .json::<GenericResponse>()
+            .await?;
+        if response.status.already_signed_in() {
+            info!("{}", response.status.msg.unwrap())
+        } else {
+            response.status.check()?;
+        }
+
+        Ok(())
+    }
+
+    async fn bookshelf_infos(&self) -> Result<Vec<u32>, Error> {
+        let response = self
+            .get_query("/user/Pockets", BookshelfInfoRequest { expand: "novels" })
+            .await?
+            .json::<BookshelfInfoResponse>()
+            .await?;
+        response.status.check()?;
+        let data = response.data.unwrap();
+
+        let mut result = Vec::with_capacity(32);
+        for info in data {
+            if info.expand.is_some() {
+                let novels = info.expand.unwrap().novels;
+
+                if novels.is_some() {
+                    for novel_info in novels.unwrap() {
+                        result.push(novel_info.novel_id);
+                    }
+                }
+            }
+        }
+
+        Ok(result)
     }
 
     async fn novel_info(&self, id: u32) -> Result<Option<NovelInfo>, Error> {
@@ -102,7 +154,7 @@ impl Client for SfacgClient {
         let response = self
             .get_query(
                 format!("/novels/{id}"),
-                &NovelInfoRequest {
+                NovelInfoRequest {
                     expand: "intro,typeName,sysTags",
                 },
             )
@@ -113,32 +165,27 @@ impl Client for SfacgClient {
             return Ok(None);
         }
         response.status.check()?;
-
-        let novel_data = response.data.unwrap();
-
-        let word_count = if novel_data.char_count <= 0 {
-            None
-        } else {
-            Some(novel_data.char_count as u32)
-        };
+        let data = response.data.unwrap();
 
         let category = Category {
-            id: Some(novel_data.type_id),
-            name: novel_data.expand.type_name.trim().to_string(),
+            id: Some(data.type_id),
+            parent_id: None,
+            name: data.expand.type_name.trim().to_string(),
         };
 
         let novel_info = NovelInfo {
             id,
-            name: novel_data.novel_name.trim().to_string(),
-            author_name: novel_data.author_name.trim().to_string(),
-            cover_url: Some(novel_data.novel_cover),
-            introduction: SfacgClient::parse_intro(novel_data.expand.intro),
-            word_count,
-            is_finished: Some(novel_data.is_finish),
-            create_time: Some(novel_data.add_time),
-            update_time: Some(novel_data.last_update_time),
+            name: data.novel_name.trim().to_string(),
+            author_name: data.author_name.trim().to_string(),
+            cover_url: Some(data.novel_cover),
+            introduction: SfacgClient::parse_intro(data.expand.intro),
+            word_count: SfacgClient::parse_word_count(data.char_count),
+            is_vip: Some(data.sign_status == "VIP"),
+            is_finished: Some(data.is_finish),
+            create_time: Some(data.add_time),
+            update_time: Some(data.last_update_time),
             category: Some(category),
-            tags: SfacgClient::parse_tags(novel_data.expand.sys_tags),
+            tags: self.parse_tags(data.expand.sys_tags).await?,
         };
 
         Ok(Some(novel_info))
@@ -150,36 +197,28 @@ impl Client for SfacgClient {
         let response = self
             .get(format!("/novels/{id}/dirs"))
             .await?
-            .json::<NovelsDirsResponse>()
+            .json::<VolumeInfosResponse>()
             .await?;
         response.status.check()?;
+        let data = response.data.unwrap();
 
-        let mut volumes = VolumeInfos::new();
-        for volume in response.data.unwrap().volume_list {
+        let mut volumes = VolumeInfos::with_capacity(8);
+        for volume in data.volume_list {
             let mut volume_info = VolumeInfo {
                 title: volume.title.trim().to_string(),
-                chapter_infos: vec![],
+                chapter_infos: Vec::with_capacity(volume.chapter_list.len()),
             };
 
             for chapter in volume.chapter_list {
-                let update_time = if chapter.update_time.is_some() {
-                    chapter.update_time
-                } else {
-                    Some(chapter.add_time)
-                };
-
-                let word_count = if chapter.char_count <= 0 {
-                    None
-                } else {
-                    Some(chapter.char_count as u16)
-                };
-
                 let chapter_info = ChapterInfo {
+                    novel_id: Some(chapter.novel_id),
                     identifier: Identifier::Id(chapter.chap_id),
                     title: chapter.title.trim().to_string(),
-                    word_count,
-                    update_time,
+                    word_count: Some(chapter.char_count),
+                    create_time: Some(chapter.add_time),
+                    update_time: chapter.update_time,
                     is_vip: Some(chapter.is_vip),
+                    price: Some(chapter.need_fire_money),
                     is_accessible: Some(chapter.need_fire_money == 0),
                     is_valid: None,
                 };
@@ -204,15 +243,23 @@ impl Client for SfacgClient {
                 let response = self
                     .get_query(
                         format!("/Chaps/{}", info.identifier.to_string()),
-                        &ChapsRequest { expand: "content" },
+                        ContentInfosRequest {
+                            expand: "content,isContentEncrypted",
+                        },
                     )
                     .await?
-                    .json::<ChapsResponse>()
+                    .json::<ContentInfosResponse>()
                     .await?;
                 response.status.check()?;
+                let data = response.data.unwrap();
 
-                content = response.data.unwrap().expand.content;
+                // Currently this value is false, it may change in the future
+                assert!(
+                    !data.expand.is_content_encrypted,
+                    "Decryption of encrypted content is not supported"
+                );
 
+                content = data.expand.content;
                 match other {
                     FindTextResult::None => self.db().await?.insert_text(info, &content).await?,
                     FindTextResult::Outdate => self.db().await?.update_text(info, &content).await?,
@@ -221,15 +268,16 @@ impl Client for SfacgClient {
             }
         }
 
-        let mut content_infos = ContentInfos::new();
+        let mut content_infos = ContentInfos::with_capacity(128);
         for line in content
             .lines()
             .map(|line| line.trim())
             .filter(|line| !line.is_empty())
         {
             if line.starts_with("[img") {
-                if let Some(url) = SfacgClient::parse_image_url(line) {
-                    content_infos.push(ContentInfo::Image(url));
+                match SfacgClient::parse_image_url(line) {
+                    Ok(url) => content_infos.push(ContentInfo::Image(url)),
+                    Err(err) => error!("{err}"),
                 }
             } else {
                 content_infos.push(ContentInfo::Text(line.to_string()));
@@ -237,6 +285,29 @@ impl Client for SfacgClient {
         }
 
         Ok(content_infos)
+    }
+
+    async fn buy_chapter(&self, info: &ChapterInfo) -> Result<(), Error> {
+        let Identifier::Id(id) = info.identifier else {
+            unreachable!()
+        };
+
+        let response = self
+            .post(
+                &format!("/novels/{}/orderedchaps", info.novel_id.unwrap()),
+                BuyChapterRequest {
+                    order_all: false,
+                    auto_order: false,
+                    chap_ids: vec![id],
+                    order_type: "readOrder",
+                },
+            )
+            .await?
+            .json::<GenericResponse>()
+            .await?;
+        response.status.check()?;
+
+        Ok(())
     }
 
     async fn image(&self, url: &Url) -> Result<DynamicImage, Error> {
@@ -257,62 +328,6 @@ impl Client for SfacgClient {
         }
     }
 
-    async fn search_infos<T>(&self, text: T, page: u16, size: u16) -> Result<Vec<u32>, Error>
-    where
-        T: AsRef<str> + Send + Sync,
-    {
-        let response = self
-            .get_query(
-                "/search/novels/result/new",
-                &SearchRequest {
-                    page,
-                    q: text.as_ref().to_string(),
-                    size,
-                    sort: "hot",
-                },
-            )
-            .await?
-            .json::<SearchResponse>()
-            .await?;
-        response.status.check()?;
-
-        let mut result = Vec::new();
-        if response.data.is_some() {
-            for novel_info in response.data.unwrap().novels {
-                result.push(novel_info.novel_id);
-            }
-        }
-
-        Ok(result)
-    }
-
-    async fn bookshelf_infos(&self) -> Result<Vec<u32>, Error> {
-        let response = self
-            .get_query(
-                "/user/Pockets",
-                &BookshelfRequest {
-                    expand: "novels,albums,comics",
-                },
-            )
-            .await?
-            .json::<BookshelfResponse>()
-            .await?;
-        response.status.check()?;
-
-        let mut result = Vec::new();
-        if response.data.is_some() {
-            for data in response.data.unwrap() {
-                if let BookshelfExpand::Novels(novels) = data.expand {
-                    for novel_info in novels {
-                        result.push(novel_info.novel_id);
-                    }
-                }
-            }
-        }
-
-        Ok(result)
-    }
-
     async fn categories(&self) -> Result<&Vec<Category>, Error> {
         static CATEGORIES: OnceCell<Vec<Category>> = OnceCell::const_new();
 
@@ -324,15 +339,18 @@ impl Client for SfacgClient {
                     .json::<CategoryResponse>()
                     .await?;
                 response.status.check()?;
+                let data = response.data.unwrap();
 
-                let mut result = Vec::new();
-
-                for tag_data in response.data.unwrap() {
+                let mut result = Vec::with_capacity(8);
+                for tag_data in data {
                     result.push(Category {
                         id: Some(tag_data.type_id),
+                        parent_id: None,
                         name: tag_data.type_name.trim().to_string(),
                     });
                 }
+
+                result.sort_unstable_by_key(|x| x.id.unwrap());
 
                 Ok(result)
             })
@@ -349,10 +367,10 @@ impl Client for SfacgClient {
                 .json::<TagResponse>()
                 .await?;
             response.status.check()?;
+            let data = response.data.unwrap();
 
-            let mut result = Vec::new();
-
-            for tag_data in response.data.unwrap() {
+            let mut result = Vec::with_capacity(64);
+            for tag_data in data {
                 result.push(Tag {
                     id: Some(tag_data.sys_tag_id),
                     name: tag_data.tag_name.trim().to_string(),
@@ -365,51 +383,161 @@ impl Client for SfacgClient {
                 name: "百合".to_string(),
             });
 
+            result.sort_unstable_by_key(|x| x.id.unwrap());
+
             Ok(result)
         })
         .await
     }
 
-    async fn novels(&self, option: &Options, page: u16, size: u16) -> Result<Vec<u32>, Error> {
+    async fn search_infos(
+        &self,
+        option: &Options,
+        page: u16,
+        size: u16,
+    ) -> Result<Option<Vec<u32>>, Error> {
+        if option.keyword.is_some() {
+            self.do_search_with_keyword(option, page, size).await
+        } else {
+            self.do_search_without_keyword(option, page, size).await
+        }
+    }
+}
+
+impl SfacgClient {
+    async fn do_search_with_keyword(
+        &self,
+        option: &Options,
+        page: u16,
+        size: u16,
+    ) -> Result<Option<Vec<u32>>, Error> {
+        // 0 连载中
+        // 1 已完结
+        // -1 不限
+        let is_finish = if option.is_finished.is_none() {
+            -1
+        } else if *option.is_finished.as_ref().unwrap() {
+            1
+        } else {
+            0
+        };
+
+        // -1 不限
+        let update_days = if option.update_days.is_none() {
+            -1
+        } else {
+            option.update_days.unwrap() as i8
+        };
+
+        let response = self
+            .get_query(
+                "/search/novels/result/new",
+                SearchRequest {
+                    q: option.keyword.as_ref().unwrap().to_string(),
+                    is_finish,
+                    update_days,
+                    systagids: SfacgClient::tag_ids(&option.tags),
+                    page,
+                    size,
+                    // hot 人气最高
+                    // update 最新更新
+                    // marknum 收藏最高
+                    // ticket 月票最多
+                    // charcount 更新最多
+                    sort: "hot",
+                    expand: "sysTags",
+                },
+            )
+            .await?
+            .json::<SearchResponse>()
+            .await?;
+        response.status.check()?;
+        let data = response.data.unwrap();
+
+        if data.novels.is_empty() {
+            return Ok(None);
+        }
+
+        let mut result = Vec::new();
+        let sys_tags = self.tags().await?;
+
+        for novel_info in data.novels {
+            let mut tag_ids = vec![];
+
+            for tag in novel_info.expand.sys_tags {
+                if let Some(sys_tag) = sys_tags.iter().find(|x| x.id.unwrap() == tag.sys_tag_id) {
+                    tag_ids.push(sys_tag.id.unwrap());
+                }
+            }
+
+            if SfacgClient::match_category(option, novel_info.type_id)
+                && SfacgClient::match_excluded_tags(option, tag_ids)
+                && SfacgClient::match_vip(option, &novel_info.sign_status)
+                && SfacgClient::match_word_count(option, novel_info.char_count)
+            {
+                result.push(novel_info.novel_id);
+            }
+        }
+
+        Ok(Some(result))
+    }
+
+    async fn do_search_without_keyword(
+        &self,
+        option: &Options,
+        page: u16,
+        size: u16,
+    ) -> Result<Option<Vec<u32>>, Error> {
         let mut category_id = 0;
         if option.category.is_some() {
             category_id = option.category.as_ref().unwrap().id.unwrap();
         }
 
-        let is_finish = SfacgClient::bool_to_str(&option.is_finished);
-        let is_free = SfacgClient::bool_to_str(&option.is_vip.as_ref().map(|x| !x));
+        // -1 不限
+        let updatedays = if option.update_days.is_none() {
+            -1
+        } else {
+            option.update_days.unwrap() as i8
+        };
 
-        let sys_tag_ids = SfacgClient::tag_ids(&option.tags);
-        let not_exclude_sys_tag_ids = SfacgClient::tag_ids(&option.excluded_tags);
+        let isfinish = SfacgClient::bool_to_str(&option.is_finished);
+        let isfree = SfacgClient::bool_to_str(&option.is_vip.as_ref().map(|x| !x));
 
-        let mut char_count_begin = 0;
-        let mut char_count_end = 0;
+        let systagids = SfacgClient::tag_ids(&option.tags);
+        let notexcludesystagids = SfacgClient::tag_ids(&option.excluded_tags);
+
+        let mut charcountbegin = 0;
+        let mut charcountend = 0;
 
         if option.word_count.is_some() {
             match option.word_count.as_ref().unwrap() {
                 WordCountRange::Range(range) => {
-                    char_count_begin = range.start;
-                    char_count_end = range.end;
+                    charcountbegin = range.start;
+                    charcountend = range.end;
                 }
-                WordCountRange::RangeFrom(range_from) => char_count_begin = range_from.start,
-                WordCountRange::RangeTo(range_to) => char_count_end = range_to.end,
+                WordCountRange::RangeFrom(range_from) => charcountbegin = range_from.start,
+                WordCountRange::RangeTo(range_to) => charcountend = range_to.end,
             }
         }
 
         let response = self
             .get_query(
                 format!("/novels/{category_id}/sysTags/novels"),
-                &NovelsRequest {
-                    fields: "novelId",
-                    char_count_begin,
-                    char_count_end,
-                    is_finish,
-                    is_free,
-                    sys_tag_ids,
-                    not_exclude_sys_tag_ids,
-                    updatedays: option.update_days,
+                NovelsRequest {
+                    charcountbegin,
+                    charcountend,
+                    isfinish,
+                    isfree,
+                    systagids,
+                    notexcludesystagids,
+                    updatedays,
                     page,
                     size,
+                    // latest 最新更新
+                    // viewtimes 人气最高
+                    // bookmark 收藏最高
+                    // ticket 月票最多
+                    // charcount 更新最多
                     sort: "viewtimes",
                 },
             )
@@ -417,32 +545,50 @@ impl Client for SfacgClient {
             .json::<NovelsResponse>()
             .await?;
         response.status.check()?;
+        let data = response.data.unwrap();
+
+        if data.is_empty() {
+            return Ok(None);
+        }
 
         let mut result = Vec::new();
-        if response.data.is_some() {
-            for novel_data in response.data.unwrap() {
-                result.push(novel_data.novel_id);
+        for novel_data in data {
+            result.push(novel_data.novel_id);
+        }
+
+        Ok(Some(result))
+    }
+
+    fn parse_word_count(word_count: i32) -> Option<u32> {
+        // Some novels have negative word counts
+        if word_count <= 0 {
+            None
+        } else {
+            Some(word_count as u32)
+        }
+    }
+
+    async fn parse_tags(&self, tag_list: Vec<NovelInfoSysTag>) -> Result<Option<Vec<Tag>>, Error> {
+        let sys_tags = self.tags().await?;
+
+        let mut result = Vec::new();
+        for tag in tag_list {
+            let id = tag.sys_tag_id;
+            let name = tag.tag_name.trim().to_string();
+
+            // Remove non-system tags
+            if sys_tags.iter().any(|sys_tag| sys_tag.id.unwrap() == id) {
+                result.push(Tag { id: Some(id), name });
+            } else {
+                info!("This tag is not a system tag and is ignored: {name}");
             }
         }
 
-        Ok(result)
-    }
-}
-
-impl SfacgClient {
-    fn parse_tags(sys_tags: Vec<NovelInfoSysTag>) -> Option<Vec<Tag>> {
-        let mut result = vec![];
-        for tag in sys_tags {
-            result.push(Tag {
-                id: Some(tag.sys_tag_id),
-                name: tag.tag_name.trim().to_string(),
-            });
-        }
-
         if result.is_empty() {
-            None
+            Ok(None)
         } else {
-            Some(result)
+            result.sort_unstable_by_key(|x| x.id.unwrap());
+            Ok(Some(result))
         }
     }
 
@@ -460,13 +606,14 @@ impl SfacgClient {
         }
     }
 
-    fn parse_image_url(line: &str) -> Option<Url> {
+    fn parse_image_url(line: &str) -> Result<Url, Error> {
         let begin = line.find("http");
         let end = line.find("[/img]");
 
         if begin.is_none() || end.is_none() {
-            error!("Image URL format is incorrect: {line}");
-            return None;
+            return Err(Error::NovelApi(format!(
+                "Image URL format is incorrect: {line}"
+            )));
         }
 
         let begin = begin.unwrap();
@@ -481,11 +628,10 @@ impl SfacgClient {
             .to_string();
 
         match Url::parse(&url) {
-            Ok(url) => Some(url),
-            Err(error) => {
-                error!("Image URL parse failed: {error}, content: {line}");
-                None
-            }
+            Ok(url) => Ok(url),
+            Err(error) => Err(Error::NovelApi(format!(
+                "Image URL parse failed: {error}, content: {line}"
+            ))),
         }
     }
 
@@ -508,5 +654,70 @@ impl SfacgClient {
                 .collect::<Vec<String>>()
                 .join(",")
         })
+    }
+
+    fn match_vip(option: &Options, sign_status: &str) -> bool {
+        if option.is_vip.is_none() {
+            return true;
+        }
+
+        if *option.is_vip.as_ref().unwrap() {
+            sign_status == "VIP"
+        } else {
+            sign_status != "VIP"
+        }
+    }
+
+    fn match_excluded_tags(option: &Options, tag_ids: Vec<u16>) -> bool {
+        if option.excluded_tags.is_none() {
+            return true;
+        }
+
+        tag_ids.iter().all(|id| {
+            !option
+                .excluded_tags
+                .as_ref()
+                .unwrap()
+                .iter()
+                .any(|tag| tag.id.unwrap() == *id)
+        })
+    }
+
+    fn match_category(option: &Options, category_id: u16) -> bool {
+        !option
+            .category
+            .as_ref()
+            .is_some_and(|category| category.id.unwrap() != category_id)
+    }
+
+    fn match_word_count(option: &Options, word_count: i32) -> bool {
+        if option.word_count.is_none() {
+            return true;
+        }
+
+        if word_count <= 0 {
+            return true;
+        }
+
+        let word_count = word_count as u32;
+        match option.word_count.as_ref().unwrap() {
+            WordCountRange::Range(range) => {
+                if word_count >= range.start && word_count < range.end {
+                    return true;
+                }
+            }
+            WordCountRange::RangeFrom(range_from) => {
+                if word_count >= range_from.start {
+                    return true;
+                }
+            }
+            WordCountRange::RangeTo(rang_to) => {
+                if word_count < rang_to.end {
+                    return true;
+                }
+            }
+        }
+
+        false
     }
 }

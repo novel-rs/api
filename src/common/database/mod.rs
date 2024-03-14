@@ -4,6 +4,7 @@ mod migration;
 use std::{io::Cursor, path::PathBuf};
 
 use async_compression::tokio::{bufread::ZstdDecoder, write::ZstdEncoder};
+use chrono::NaiveDateTime;
 use image::{io::Reader, DynamicImage};
 use sea_orm::{ActiveModelTrait, ConnectOptions, Database, DatabaseConnection, EntityTrait};
 use tokio::{
@@ -38,9 +39,7 @@ pub(crate) enum FindImageResult {
 }
 
 impl NovelDB {
-    const DB_NAME: &str = "novel.db";
-    // See https://github.com/sqlcipher/sqlcipher#encrypting-a-database
-    const PASSWORD: &str = "'qakju7-hybNys-syjvam'";
+    const DB_NAME: &'static str = "novel.db";
 
     pub(crate) async fn new(app_name: &str) -> Result<Self, Error> {
         let db_path = NovelDB::db_path(app_name)?;
@@ -57,10 +56,7 @@ impl NovelDB {
         }
 
         let db_url = format!("sqlite:{}?mode=rwc", db_path.display());
-        let mut option = ConnectOptions::new(db_url);
-        option.sqlcipher_key(NovelDB::PASSWORD);
-
-        let db = Database::connect(option).await?;
+        let db = Database::connect(ConnectOptions::new(db_url)).await?;
         Migrator::up(&db, None).await?;
 
         Ok(Self { db })
@@ -79,7 +75,7 @@ impl NovelDB {
         let result = match Text::find_by_id(identifier).one(&self.db).await? {
             Some(model) => {
                 let saved_data_time = model.date_time;
-                let time = info.update_time;
+                let time = NovelDB::get_time(info);
 
                 if time.is_some()
                     && saved_data_time.is_some()
@@ -88,7 +84,7 @@ impl NovelDB {
                     Ok(FindTextResult::Outdate)
                 } else {
                     Ok(FindTextResult::Ok(unsafe {
-                        String::from_utf8_unchecked(zstd_decompress(&model.text).await?)
+                        String::from_utf8_unchecked(zstd_decompress(&model.content).await?)
                     }))
                 }
             }
@@ -109,8 +105,8 @@ impl NovelDB {
 
         let model = entity::text::ActiveModel {
             identifier: sea_orm::Set(info.identifier.to_string()),
-            date_time: sea_orm::Set(info.update_time),
-            text: sea_orm::Set(zstd_compress(text.as_ref().as_bytes()).await?),
+            date_time: sea_orm::Set(NovelDB::get_time(info)),
+            content: sea_orm::Set(zstd_compress(text.as_ref().as_bytes()).await?),
         };
         model.insert(&self.db).await?;
 
@@ -127,8 +123,8 @@ impl NovelDB {
 
         let model = entity::text::ActiveModel {
             identifier: sea_orm::Set(info.identifier.to_string()),
-            date_time: sea_orm::Set(info.update_time),
-            text: sea_orm::Set(zstd_compress(text.as_ref().as_bytes()).await?),
+            date_time: sea_orm::Set(NovelDB::get_time(info)),
+            content: sea_orm::Set(zstd_compress(text.as_ref().as_bytes()).await?),
         };
         model.update(&self.db).await?;
 
@@ -144,7 +140,7 @@ impl NovelDB {
 
         let result = match model {
             Some(model) => {
-                let bytes = zstd_decompress(&model.image).await?;
+                let bytes = zstd_decompress(&model.content).await?;
                 let image = Reader::new(Cursor::new(bytes))
                     .with_guessed_format()?
                     .decode()?;
@@ -167,7 +163,7 @@ impl NovelDB {
 
         let model = entity::image::ActiveModel {
             url: sea_orm::Set(url.to_string()),
-            image: sea_orm::Set(zstd_compress(bytes).await?),
+            content: sea_orm::Set(zstd_compress(bytes).await?),
         };
         model.insert(&self.db).await?;
 
@@ -181,6 +177,14 @@ impl NovelDB {
         db_path.push(NovelDB::DB_NAME);
 
         Ok(db_path)
+    }
+
+    fn get_time(info: &ChapterInfo) -> Option<NaiveDateTime> {
+        if info.update_time.is_some() {
+            info.update_time
+        } else {
+            info.create_time
+        }
     }
 }
 
@@ -235,12 +239,15 @@ mod tests {
     impl Default for ChapterInfo {
         fn default() -> Self {
             Self {
+                novel_id: Default::default(),
                 identifier: Identifier::Id(0),
                 title: Default::default(),
                 is_vip: Default::default(),
+                price: Default::default(),
                 is_accessible: Default::default(),
                 is_valid: Default::default(),
                 word_count: Default::default(),
+                create_time: Default::default(),
                 update_time: Default::default(),
             }
         }

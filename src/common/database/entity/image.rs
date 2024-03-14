@@ -5,7 +5,7 @@ use sea_orm::entity::prelude::*;
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub url: String,
-    pub image: Vec<u8>,
+    pub content: Vec<u8>,
 }
 
 #[derive(Debug, Clone, Copy, EnumIter, DeriveRelation)]

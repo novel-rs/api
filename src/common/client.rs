@@ -1,9 +1,8 @@
 use std::{
     ops::{Range, RangeFrom, RangeTo},
-    path::Path,
+    path::PathBuf,
 };
 
-use async_trait::async_trait;
 use chrono::NaiveDateTime;
 use image::DynamicImage;
 use url::Url;
@@ -16,6 +15,8 @@ use crate::Error;
 pub struct UserInfo {
     /// User's nickname
     pub nickname: String,
+    /// User's avatar
+    pub avatar: Option<Url>,
 }
 
 /// Novel information
@@ -34,6 +35,8 @@ pub struct NovelInfo {
     pub introduction: Option<Vec<String>>,
     /// Novel word count
     pub word_count: Option<u32>,
+    /// Is the novel a VIP
+    pub is_vip: Option<bool>,
     /// Is the novel finished
     pub is_finished: Option<bool>,
     /// Novel creation time
@@ -54,10 +57,12 @@ impl PartialEq for NovelInfo {
 
 /// Novel category
 #[must_use]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Category {
     /// Category id
     pub id: Option<u16>,
+    /// Parent category id
+    pub parent_id: Option<u16>,
     /// Category name
     pub name: String,
 }
@@ -70,7 +75,7 @@ impl ToString for Category {
 
 /// Novel tag
 #[must_use]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Tag {
     /// Tag id
     pub id: Option<u16>,
@@ -101,19 +106,25 @@ pub struct VolumeInfo {
 #[must_use]
 #[derive(Debug)]
 pub struct ChapterInfo {
+    /// Novel id
+    pub novel_id: Option<u32>,
     /// Chapter identifier
     pub identifier: Identifier,
     /// Chapter title
     pub title: String,
     /// Whether this chapter can only be read by VIP users
     pub is_vip: Option<bool>,
+    /// Chapter price
+    pub price: Option<u16>,
     /// Is the chapter accessible
     pub is_accessible: Option<bool>,
     /// Is the chapter valid
     pub is_valid: Option<bool>,
     /// Word count
-    pub word_count: Option<u16>,
-    /// last update time
+    pub word_count: Option<u32>,
+    /// Chapter creation time
+    pub create_time: Option<NaiveDateTime>,
+    /// Chapter last update time
     pub update_time: Option<NaiveDateTime>,
 }
 
@@ -169,6 +180,8 @@ pub enum ContentInfo {
 /// Options used by the search
 #[derive(Debug, Default)]
 pub struct Options {
+    /// Keyword
+    pub keyword: Option<String>,
     /// Is it finished
     pub is_finished: Option<bool>,
     /// Whether this chapter can only be read by VIP users
@@ -197,8 +210,8 @@ pub enum WordCountRange {
 }
 
 /// Traits that abstract client behavior
-#[async_trait]
-pub trait Client {
+#[trait_variant::make(Client: Send)]
+pub trait LocalClient {
     /// set proxy
     fn proxy(&mut self, proxy: Url);
 
@@ -206,9 +219,7 @@ pub trait Client {
     fn no_proxy(&mut self);
 
     /// Set the certificate path for use with packet capture tools
-    fn cert<T>(&mut self, cert_path: T)
-    where
-        T: AsRef<Path>;
+    fn cert(&mut self, cert_path: PathBuf);
 
     /// Stop the client, save the data
     async fn shutdown(&self) -> Result<(), Error>;
@@ -216,11 +227,23 @@ pub trait Client {
     /// Add cookie
     async fn add_cookie(&self, cookie_str: &str, url: &Url) -> Result<(), Error>;
 
-    /// Login
-    async fn login(&self, username: String, password: String) -> Result<(), Error>;
+    /// Login in
+    async fn log_in(&self, username: String, password: Option<String>) -> Result<(), Error>;
 
-    /// Get the information of the logged-in user, if the information fails to get, it will return None
-    async fn user_info(&self) -> Result<Option<UserInfo>, Error>;
+    /// Check if you are logged in
+    async fn logged_in(&self) -> Result<bool, Error>;
+
+    /// Get the information of the logged-in user
+    async fn user_info(&self) -> Result<UserInfo, Error>;
+
+    /// Get user's existing money
+    async fn money(&self) -> Result<u32, Error>;
+
+    /// Sign
+    async fn sign(&self) -> Result<(), Error>;
+
+    /// Get the favorite novel of the logged-in user and return the novel id
+    async fn bookshelf_infos(&self) -> Result<Vec<u32>, Error>;
 
     /// Get Novel Information
     async fn novel_info(&self, id: u32) -> Result<Option<NovelInfo>, Error>;
@@ -231,16 +254,11 @@ pub trait Client {
     /// Get content Information
     async fn content_infos(&self, info: &ChapterInfo) -> Result<ContentInfos, Error>;
 
+    /// Buy chapter
+    async fn buy_chapter(&self, info: &ChapterInfo) -> Result<(), Error>;
+
     /// Download image
     async fn image(&self, url: &Url) -> Result<DynamicImage, Error>;
-
-    /// Search, return novel id
-    async fn search_infos<T>(&self, text: T, page: u16, size: u16) -> Result<Vec<u32>, Error>
-    where
-        T: AsRef<str> + Send + Sync;
-
-    /// Get the favorite novel of the logged-in user and return the novel id
-    async fn bookshelf_infos(&self) -> Result<Vec<u32>, Error>;
 
     /// Get all categories
     async fn categories(&self) -> Result<&Vec<Category>, Error>;
@@ -249,5 +267,10 @@ pub trait Client {
     async fn tags(&self) -> Result<&Vec<Tag>, Error>;
 
     /// Search all matching novels
-    async fn novels(&self, option: &Options, page: u16, size: u16) -> Result<Vec<u32>, Error>;
+    async fn search_infos(
+        &self,
+        option: &Options,
+        page: u16,
+        size: u16,
+    ) -> Result<Option<Vec<u32>>, Error>;
 }

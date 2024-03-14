@@ -11,24 +11,26 @@
     <script src="geetest.js"></script>
     <script defer>
       initGeetest(
-        {{
-          gt: "{}",
-          challenge: "{}",
+        {
+          gt: "{{ gt }}",
+          challenge: "{{ challenge }}",
           offline: !1,
-          new_captcha: {},
-        }},
-        function (captchaObj) {{
-          {{
+          new_captcha: {{ new_captcha }},
+        },
+        function (captchaObj) {
+          {
             captchaObj.appendTo("#captcha-box");
-            captchaObj.onSuccess(function () {{
-              {{
+            captchaObj.onSuccess(function () {
+              {
                 let result = captchaObj.getValidate();
                 window.location.href =
-                  window.location.origin + "/validate/" + result.geetest_validate;
-              }}
-            }});
-          }}
-        }}
+                  window.location.origin +
+                  "/validate/" +
+                  result.geetest_validate;
+              }
+            });
+          }
+        },
       );
     </script>
   </body>

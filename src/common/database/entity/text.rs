@@ -7,7 +7,7 @@ pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub identifier: String,
     pub date_time: Option<NaiveDateTime>,
-    pub text: Vec<u8>,
+    pub content: Vec<u8>,
 }
 
 #[derive(Debug, Clone, Copy, EnumIter, DeriveRelation)]

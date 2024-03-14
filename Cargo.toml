@@ -2,7 +2,7 @@
 name = "novel-api"
 version = "0.9.0"
 edition = "2021"
-rust-version = "1.70"
+rust-version = "1.75"
 license = "MIT OR Apache-2.0"
 authors = ["Terakomari <im.terakomari@icloud.com>"]
 repository = "https://github.com/novel-rs/api"
@@ -15,52 +15,51 @@ categories = ["command-line-utilities"]
 
 [dependencies]
 # https://github.com/dtolnay/thiserror
-thiserror = { version = "1.0.44", default-features = false }
+thiserror = { version = "1.0.58", default-features = false }
 # https://github.com/serde-rs/serde
-serde = { version = "1.0.181", default-features = false, features = [
+serde = { version = "1.0.197", default-features = false, features = [
   "std",
   "derive",
 ] }
 # https://github.com/dtolnay/async-trait
-async-trait = { version = "0.1.72", default-features = false }
+async-trait = { version = "0.1.77", default-features = false }
+# https://github.com/rust-lang/impl-trait-utils
+trait-variant = { version = "0.1.1", default-features = false }
 # https://github.com/tokio-rs/tokio
-tokio = { version = "1.29.1", default-features = false, features = [
+tokio = { version = "1.36.0", default-features = false, features = [
   "fs",
   "sync",
   "rt-multi-thread",
-  "parking_lot",
 ] }
 # https://github.com/matklad/once_cell
-once_cell = { version = "1.18.0", default-features = false, features = ["std"] }
+once_cell = { version = "1.19.0", default-features = false, features = ["std"] }
 # https://github.com/rusticstuff/simdutf8
 simdutf8 = { version = "0.1.4", default-features = false, features = [
   "std",
   "aarch64_neon",
 ] }
 # https://github.com/serde-rs/json
-serde_json = { version = "1.0.104", default-features = false, features = [
+serde_json = { version = "1.0.114", default-features = false, features = [
   "std",
 ] }
 # https://github.com/causal-agent/scraper
-scraper = { version = "0.17.1", default-features = false }
+scraper = { version = "0.19.0", default-features = false }
 # https://github.com/uuid-rs/uuid
-uuid = { version = "1.4.1", default-features = false, features = [
+uuid = { version = "1.7.0", default-features = false, features = [
   "std",
   "v4",
   "fast-rng",
 ] }
 # https://github.com/chronotope/chrono
-chrono = { version = "0.4.26", default-features = false, features = [
+chrono = { version = "0.4.35", default-features = false, features = [
   "std",
+  "clock",
   "serde",
 ] }
-# https://github.com/dtolnay/semver
-semver = { version = "1.0.18", default-features = false, features = [
-  "std",
-  "serde",
-] }
+# https://github.com/chronotope/chrono-tz
+chrono-tz = { version = "0.8.6", default-features = false, features = ["std"] }
 # https://github.com/tokio-rs/tracing
-tracing = { version = "0.1.37", default-features = false, features = ["std"] }
+tracing = { version = "0.1.40", default-features = false, features = ["std"] }
 # https://github.com/Nugine/simd
 hex-simd = { version = "0.8.0", default-features = false, features = [
   "std",
@@ -72,28 +71,37 @@ base64-simd = { version = "0.8.0", default-features = false, features = [
   "detect",
 ] }
 # https://github.com/RustCrypto/block-ciphers
-aes = { version = "0.8.3", default-features = false }
+aes = { version = "0.8.4", default-features = false }
+# https://github.com/RustCrypto/block-ciphers
+des = { version = "0.8.1", default-features = false }
 # https://github.com/RustCrypto/block-modes
 cbc = { version = "0.1.2", default-features = false, features = [
   "std",
   "block-padding",
 ] }
+# https://github.com/magic-akari/ecb
+ecb = { version = "0.1.2", default-features = false, features = [
+  "std",
+  "block-padding",
+] }
 # https://github.com/RustCrypto/hashes
-md-5 = { version = "0.10.5", default-features = false, features = ["std"] }
+md-5 = { version = "0.10.6", default-features = false, features = ["std"] }
 # https://github.com/briansmith/ring
-ring = { version = "0.16.20", default-features = false, features = ["alloc"] }
+ring = { version = "0.17.8", default-features = false, features = ["alloc"] }
 # https://github.com/dirs-dev/directories-rs
 directories = { version = "5.0.1", default-features = false }
+# pin for reqwest_cookie_store
 # https://github.com/pfernie/cookie_store
-cookie_store = { version = "0.20.0", default-features = false }
+cookie_store = { version = "=0.20", default-features = false }
 # https://github.com/pfernie/reqwest_cookie_store
 reqwest_cookie_store = { version = "0.6.0", default-features = false }
+# pin for reqwest
 # https://github.com/hyperium/http
-http = { version = "0.2.9", default-features = false }
+http = { version = "=0.2", default-features = false }
 # https://github.com/servo/rust-url
-url = { version = "2.4.0", default-features = false, features = ["serde"] }
+url = { version = "2.5.0", default-features = false, features = ["serde"] }
 # https://github.com/seanmonstar/reqwest
-reqwest = { version = "0.11.18", default-features = false, features = [
+reqwest = { version = "0.11.26", default-features = false, features = [
   "rustls-tls",
   "cookies",
   "gzip",
@@ -102,75 +110,102 @@ reqwest = { version = "0.11.18", default-features = false, features = [
   "json",
   "trust-dns",
 ] }
-# https://github.com/seanmonstar/warp
-warp = { version = "0.3.5", default-features = false }
+# https://github.com/tokio-rs/axum
+axum = { version = "0.7.4", default-features = false, features = [
+  "http1",
+  "tokio",
+] }
+# https://github.com/djc/askama
+askama = { version = "0.12.1", default-features = false, features = [
+  "with-axum",
+] }
+# https://github.com/djc/askama
+askama_axum = { version = "0.4.0", default-features = false }
+# https://github.com/pyrossh/rust-embed
+rust-embed = { version = "8.3.0", default-features = false }
+# https://github.com/abonander/mime_guess
+mime_guess = { version = "2.0.4", default-features = false, features = [
+  "rev-mappings",
+] }
 # https://github.com/image-rs/image
-image = { version = "0.24.6", default-features = false, features = [
+image = { version = "0.25.0", default-features = false, features = [
   "png",
   "jpeg",
-  "jpeg_rayon",
   "webp",
-  "webp-encoder",
+  "rayon",
 ] }
+# https://github.com/jaredforth/webp
+webp = { version = "0.2.6", default-features = false }
 # https://github.com/Nemo157/async-compression
-async-compression = { version = "0.4.1", default-features = false, features = [
+async-compression = { version = "0.4.6", default-features = false, features = [
   "tokio",
   "zstdmt",
 ] }
 # https://github.com/SeaQL/sea-orm
-sea-orm = { version = "0.12.1", default-features = false, features = [
+sea-orm = { version = "0.12.14", default-features = false, features = [
   "with-chrono",
   "sqlx-sqlite",
   "runtime-tokio-rustls",
 ] }
 # https://github.com/SeaQL/sea-orm
-sea-orm-migration = { version = "0.12.1", default-features = false, features = [
+sea-orm-migration = { version = "0.12.14", default-features = false, features = [
   "with-chrono",
   "sqlx-sqlite",
   "runtime-tokio-rustls",
 ] }
-# https://github.com/rusqlite/rusqlite
-# See https://github.com/launchbadge/sqlx/issues/1436
-libsqlite3-sys = { version = "=0.26.0", default-features = false, features = [
-  "bundled-sqlcipher-vendored-openssl",
-] }
 # https://github.com/toml-rs/toml
-toml = { version = "0.7.6", default-features = false, features = [
+toml = { version = "0.8.11", default-features = false, features = [
   "parse",
   "display",
 ] }
 # https://github.com/hwchen/keyring-rs
-keyring = { version = "2.0.5", default-features = false, features = [
+keyring = { version = "2.3.2", default-features = false, features = [
+  "platform-macos",
+  "platform-windows",
   "linux-no-secret-service",
 ] }
 # https://github.com/Hanaasagi/machine-uid
-machine-uid = { version = "0.5.0", default-features = false }
+machine-uid = { version = "0.5.1", default-features = false }
 # https://github.com/Byron/open-rs
-open = { version = "5.0.0", default-features = false }
+open = { version = "5.1.2", default-features = false }
 # https://github.com/Dentosal/portpicker-rs
 portpicker = { version = "0.1.1", default-features = false }
 # https://github.com/RustCrypto/utils
-zeroize = { version = "1.6.0", default-features = false, features = [
+zeroize = { version = "1.7.0", default-features = false, features = [
   "alloc",
-  "aarch64",
   "derive",
+  "aarch64",
 ] }
 # https://github.com/console-rs/dialoguer
-dialoguer = { version = "0.10.4", default-features = false }
+dialoguer = { version = "0.11.0", default-features = false, features = [
+  "password",
+] }
+# https://github.com/jonasbb/serde_with
+serde_with = { version = "3.7.0", default-features = false, features = [
+  "std",
+  "macros",
+] }
+# https://github.com/rust-itertools/itertools
+itertools = { version = "0.12.1", default-features = false, features = [
+  "use_std",
+] }
+# https://github.com/rust-lang/hashbrown
+hashbrown = { version = "0.14.3", default-features = false, features = [
+  "ahash",
+  "inline-more",
+] }
 
 [dev-dependencies]
 # https://github.com/dtolnay/anyhow
-anyhow = { version = "1.0.72", default-features = false, features = ["std"] }
+anyhow = { version = "1.0.81", default-features = false, features = ["std"] }
 # https://github.com/rust-pretty-assertions/rust-pretty-assertions
 pretty_assertions = { version = "1.4.0", default-features = false, features = [
   "std",
 ] }
 # https://github.com/tokio-rs/tokio
-tokio = { version = "1.29.1", default-features = false, features = [
+tokio = { version = "1.36.0", default-features = false, features = [
   "macros",
-  "fs",
   "rt-multi-thread",
-  "parking_lot",
 ] }
 # https://github.com/Stebalien/tempfile
-tempfile = { version = "3.7.0", default-features = false }
+tempfile = { version = "3.10.1", default-features = false }

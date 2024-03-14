@@ -1,15 +1,19 @@
 "v0.4.9 Geetest Inc.";
+
 (function (window) {
   "use strict";
   if (typeof window === "undefined") {
     throw new Error("Geetest requires browser environment");
   }
+
   var document = window.document;
   var Math = window.Math;
   var head = document.getElementsByTagName("head")[0];
+
   function _Object(obj) {
     this._obj = obj;
   }
+
   _Object.prototype = {
     _each: function (process) {
       var _obj = this._obj;
@@ -21,12 +25,14 @@
       return this;
     },
   };
+
   function Config(config) {
     var self = this;
     new _Object(config)._each(function (key, value) {
       self[key] = value;
     });
   }
+
   Config.prototype = {
     api_server: "api.geetest.com",
     protocol: "http://",
@@ -77,8 +83,10 @@
   };
   var MOBILE = /Mobi/i.test(navigator.userAgent);
   var pt = MOBILE ? 3 : 0;
+
   var callbacks = {};
   var status = {};
+
   var nowDate = function () {
     var date = new Date();
     var year = date.getFullYear();
@@ -87,6 +95,7 @@
     var hours = date.getHours();
     var minutes = date.getMinutes();
     var seconds = date.getSeconds();
+
     if (month >= 1 && month <= 9) {
       month = "0" + month;
     }
@@ -116,17 +125,21 @@
       seconds;
     return currentdate;
   };
+
   var random = function () {
     return parseInt(Math.random() * 10000) + new Date().valueOf();
   };
+
   var loadScript = function (url, cb) {
     var script = document.createElement("script");
     script.charset = "UTF-8";
     script.async = true;
+
     // 对geetest的静态资源添加 crossOrigin
     if (/static\.geetest\.com/g.test(url)) {
       script.crossOrigin = "anonymous";
     }
+
     script.onerror = function () {
       cb(true);
     };
@@ -147,11 +160,11 @@
     script.src = url;
     head.appendChild(script);
   };
+
   var normalizeDomain = function (domain) {
     // special domain: uems.sysu.edu.cn/jwxt/geetest/
     // return domain.replace(/^https?:\/\/|\/.*$/g, ''); uems.sysu.edu.cn
-    return domain.replace(/^https?:\/\/|\/$/g, "");
-    // uems.sysu.edu.cn/jwxt/geetest
+    return domain.replace(/^https?:\/\/|\/$/g, ""); // uems.sysu.edu.cn/jwxt/geetest
   };
   var normalizePath = function (path) {
     path = path.replace(/\/+/g, "/");
@@ -177,12 +190,15 @@
   };
   var makeURL = function (protocol, domain, path, query) {
     domain = normalizeDomain(domain);
+
     var url = normalizePath(path) + normalizeQuery(query);
     if (domain) {
       url = protocol + domain + url;
     }
+
     return url;
   };
+
   var load = function (config, send, protocol, domains, path, query, cb) {
     var tryRequest = function (at) {
       var url = makeURL(protocol, domains[at], path, query);
@@ -206,6 +222,7 @@
     };
     tryRequest(0);
   };
+
   var jsonp = function (domains, path, config, callback) {
     if (isObject(config.getLib)) {
       config._extend(config.getLib);
@@ -216,6 +233,7 @@
       callback(config._get_fallback_config());
       return;
     }
+
     var cb = "geetest_" + random();
     window[cb] = function (data) {
       if (data.status == "success") {
@@ -247,6 +265,7 @@
       },
     );
   };
+
   var reportError = function (config, url) {
     load(
       config,
@@ -265,6 +284,7 @@
       function (err) {},
     );
   };
+
   var throwError = function (errorType, config) {
     var errors = {
       networkError: "网络错误",
@@ -276,34 +296,41 @@
       throw new Error(errors[errorType]);
     }
   };
+
   var detect = function () {
     return window.Geetest || document.getElementById("gt_lib");
   };
+
   if (detect()) {
     status.slide = "loaded";
   }
+
   window.initGeetest = function (userConfig, callback) {
     var config = new Config(userConfig);
+
     if (userConfig.https) {
       config.protocol = "https://";
     } else if (!userConfig.protocol) {
       config.protocol = window.location.protocol + "//";
     }
+
     // for KFC
     if (
       userConfig.gt === "050cffef4ae57b5d5e529fea9540b0d1" ||
       userConfig.gt === "3bd38408ae4af923ed36e13819b14d42"
     ) {
-      config.apiserver = "yumchina.geetest.com/";
-      // for old js
+      config.apiserver = "yumchina.geetest.com/"; // for old js
       config.api_server = "yumchina.geetest.com";
     }
+
     if (userConfig.gt) {
       window.GeeGT = userConfig.gt;
     }
+
     if (userConfig.challenge) {
       window.GeeChallenge = userConfig.challenge;
     }
+
     if (isObject(userConfig.getType)) {
       config._extend(userConfig.getType);
     }
@@ -317,11 +344,14 @@
           config._extend(newConfig);
           callback(new window.Geetest(config));
         };
+
         callbacks[type] = callbacks[type] || [];
         var s = status[type] || "init";
         if (s === "init") {
           status[type] = "loading";
+
           callbacks[type].push(init);
+
           load(
             config,
             true,

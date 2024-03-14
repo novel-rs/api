@@ -7,7 +7,7 @@ enum Text {
     Table,
     Identifier,
     DateTime,
-    Text,
+    Content,
 }
 
 #[must_use]
@@ -15,7 +15,7 @@ enum Text {
 enum Image {
     Table,
     Url,
-    Image,
+    Content,
 }
 
 #[must_use]
@@ -37,7 +37,7 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(Text::DateTime).date_time())
-                    .col(ColumnDef::new(Text::Text).binary().not_null())
+                    .col(ColumnDef::new(Text::Content).binary().not_null())
                     .to_owned(),
             )
             .await?;
@@ -48,7 +48,7 @@ impl MigrationTrait for Migration {
                     .table(Image::Table)
                     .if_not_exists()
                     .col(ColumnDef::new(Image::Url).string().not_null().primary_key())
-                    .col(ColumnDef::new(Image::Image).binary().not_null())
+                    .col(ColumnDef::new(Image::Content).binary().not_null())
                     .to_owned(),
             )
             .await?;
