@@ -127,12 +127,13 @@ rust-embed = { version = "8.3.0", default-features = false }
 mime_guess = { version = "2.0.4", default-features = false, features = [
   "rev-mappings",
 ] }
+# pin for viuer
 # https://github.com/image-rs/image
-image = { version = "0.25.0", default-features = false, features = [
+image = { version = "=0.24", default-features = false, features = [
   "png",
   "jpeg",
   "webp",
-  "rayon",
+  "jpeg_rayon",
 ] }
 # https://github.com/jaredforth/webp
 webp = { version = "0.2.6", default-features = false }
@@ -142,13 +143,13 @@ async-compression = { version = "0.4.6", default-features = false, features = [
   "zstdmt",
 ] }
 # https://github.com/SeaQL/sea-orm
-sea-orm = { version = "0.12.14", default-features = false, features = [
+sea-orm = { version = "0.12.15", default-features = false, features = [
   "with-chrono",
   "sqlx-sqlite",
   "runtime-tokio-rustls",
 ] }
 # https://github.com/SeaQL/sea-orm
-sea-orm-migration = { version = "0.12.14", default-features = false, features = [
+sea-orm-migration = { version = "0.12.15", default-features = false, features = [
   "with-chrono",
   "sqlx-sqlite",
   "runtime-tokio-rustls",
