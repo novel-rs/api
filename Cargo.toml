@@ -92,7 +92,7 @@ ring = { version = "0.17.8", default-features = false, features = ["alloc"] }
 directories = { version = "5.0.1", default-features = false }
 # pin for reqwest_cookie_store
 # https://github.com/pfernie/cookie_store
-cookie_store = { version = "=0.20", default-features = false }
+cookie_store = { version = "=0.21", default-features = false }
 # https://github.com/pfernie/reqwest_cookie_store
 reqwest_cookie_store = { version = "0.6.0", default-features = false }
 # pin for reqwest
