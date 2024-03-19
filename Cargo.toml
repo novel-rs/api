@@ -22,9 +22,9 @@ serde = { version = "1.0.197", default-features = false, features = [
   "derive",
 ] }
 # https://github.com/dtolnay/async-trait
-async-trait = { version = "0.1.77", default-features = false }
+async-trait = { version = "0.1.78", default-features = false }
 # https://github.com/rust-lang/impl-trait-utils
-trait-variant = { version = "0.1.1", default-features = false }
+trait-variant = { version = "0.1.2", default-features = false }
 # https://github.com/tokio-rs/tokio
 tokio = { version = "1.36.0", default-features = false, features = [
   "fs",
@@ -45,7 +45,7 @@ serde_json = { version = "1.0.114", default-features = false, features = [
 # https://github.com/causal-agent/scraper
 scraper = { version = "0.19.0", default-features = false }
 # https://github.com/uuid-rs/uuid
-uuid = { version = "1.7.0", default-features = false, features = [
+uuid = { version = "1.8.0", default-features = false, features = [
   "std",
   "v4",
   "fast-rng",
@@ -155,7 +155,7 @@ sea-orm-migration = { version = "0.12.15", default-features = false, features = 
   "runtime-tokio-rustls",
 ] }
 # https://github.com/toml-rs/toml
-toml = { version = "0.8.11", default-features = false, features = [
+toml = { version = "0.8.12", default-features = false, features = [
   "parse",
   "display",
 ] }

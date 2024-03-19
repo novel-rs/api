@@ -210,8 +210,8 @@ pub enum WordCountRange {
 }
 
 /// Traits that abstract client behavior
-#[trait_variant::make(Client: Send)]
-pub trait LocalClient {
+#[trait_variant::make(Send)]
+pub trait Client {
     /// set proxy
     fn proxy(&mut self, proxy: Url);
 
