@@ -224,7 +224,7 @@ impl Client for SfacgClient {
                     update_time: chapter.update_time,
                     is_vip: Some(chapter.is_vip),
                     price: Some(chapter.need_fire_money),
-                    is_accessible: Some(chapter.need_fire_money == 0),
+                    payment_required: Some(chapter.need_fire_money != 0),
                     is_valid: None,
                 };
 

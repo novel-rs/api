@@ -243,7 +243,7 @@ mod tests {
                 title: Default::default(),
                 is_vip: Default::default(),
                 price: Default::default(),
-                is_accessible: Default::default(),
+                payment_required: Default::default(),
                 is_valid: Default::default(),
                 word_count: Default::default(),
                 create_time: Default::default(),

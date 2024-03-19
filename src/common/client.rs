@@ -117,7 +117,7 @@ pub struct ChapterInfo {
     /// Chapter price
     pub price: Option<u16>,
     /// Is the chapter accessible
-    pub is_accessible: Option<bool>,
+    pub payment_required: Option<bool>,
     /// Is the chapter valid
     pub is_valid: Option<bool>,
     /// Word count
@@ -130,8 +130,8 @@ pub struct ChapterInfo {
 
 impl ChapterInfo {
     /// Is this chapter available
-    pub fn is_accessible(&self) -> bool {
-        !self.is_accessible.as_ref().is_some_and(|x| !x)
+    pub fn payment_required(&self) -> bool {
+        !self.payment_required.as_ref().is_some_and(|x| !x)
     }
 
     /// Is this chapter valid
@@ -141,7 +141,7 @@ impl ChapterInfo {
 
     /// Is this chapter available for download
     pub fn can_download(&self) -> bool {
-        self.is_accessible() && self.is_valid()
+        !self.payment_required() && self.is_valid()
     }
 }
 

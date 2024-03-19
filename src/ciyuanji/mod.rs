@@ -304,8 +304,8 @@ impl Client for CiyuanjiClient {
                     is_vip: Some(chapter.is_fee == "1"),
                     // 去除小数部分
                     price: Some(chapter.price.parse::<f64>().unwrap() as u16),
-                    is_accessible: Some(
-                        chapter.is_fee == "0" || (chapter.is_fee == "1" && chapter.is_buy == "1"),
+                    payment_required: Some(
+                        chapter.is_fee == "1" && chapter.is_buy == "0",
                     ),
                     is_valid: None,
                     word_count: /*CiyuanjiClient::parse_word_count(chapter.word_count)*/Some(chapter.word_count),

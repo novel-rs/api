@@ -247,7 +247,7 @@ impl Client for CiweimaoClient {
                     update_time: None,
                     is_vip: Some(chapter.is_paid),
                     price,
-                    is_accessible: Some(chapter.auth_access),
+                    payment_required: Some(!chapter.auth_access),
                     is_valid: Some(chapter.is_valid),
                 };
 
