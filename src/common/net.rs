@@ -3,6 +3,7 @@ use std::{
     ops::Deref,
     path::{Path, PathBuf},
     sync::{Arc, RwLock},
+    time::Duration,
 };
 
 use http::{header::IntoHeaderName, StatusCode};
@@ -141,6 +142,12 @@ impl HTTPClientBuilder {
             .default_headers(headers)
             .redirect(redirect::Policy::none())
             .user_agent(self.user_agent);
+
+        if !is_ci::cached() {
+            client_builder = client_builder
+                .connect_timeout(Duration::from_secs(10))
+                .timeout(Duration::from_secs(30));
+        }
 
         if self.cookie {
             client_builder =

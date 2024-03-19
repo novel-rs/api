@@ -29,6 +29,8 @@ trait-variant = { version = "0.1.2", default-features = false }
 tokio = { version = "1.36.0", default-features = false, features = [
   "fs",
   "sync",
+  # for connect_timeout
+  "time",
   "rt-multi-thread",
 ] }
 # https://github.com/matklad/once_cell
@@ -195,6 +197,8 @@ hashbrown = { version = "0.14.3", default-features = false, features = [
   "ahash",
   "inline-more",
 ] }
+# https://github.com/zkat/is_ci
+is_ci = { version = "1.2.0", default-features = false }
 
 [dev-dependencies]
 # https://github.com/dtolnay/anyhow
