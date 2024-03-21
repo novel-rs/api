@@ -4,8 +4,7 @@ use std::{
 };
 
 use hex_simd::AsciiCase;
-use http::HeaderValue;
-use reqwest::Response;
+use reqwest::{header::HeaderValue, Response};
 use serde::Serialize;
 use serde_json::json;
 use tokio::sync::OnceCell;

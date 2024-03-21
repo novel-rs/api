@@ -1,8 +1,7 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use hex_simd::AsciiCase;
-use http::HeaderValue;
-use reqwest::Response;
+use reqwest::{header::HeaderValue, Response};
 use serde::Serialize;
 use tokio::sync::OnceCell;
 use url::Url;

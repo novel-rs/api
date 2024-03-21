@@ -6,12 +6,12 @@ use std::{
     time::Duration,
 };
 
-use http::{header::IntoHeaderName, StatusCode};
+use bytes::Bytes;
+use cookie_store::{CookieStore, RawCookie, RawCookieParseError};
 use reqwest::{
-    header::{HeaderMap, HeaderValue, ACCEPT},
-    redirect, Certificate, Client, Proxy,
+    header::{HeaderMap, HeaderValue, IntoHeaderName, ACCEPT},
+    redirect, Certificate, Client, Proxy, StatusCode,
 };
-use reqwest_cookie_store::{CookieStore, CookieStoreMutex};
 use tokio::fs;
 use tracing::{error, info};
 use url::Url;
@@ -128,9 +128,9 @@ impl HTTPClientBuilder {
     }
 
     pub(crate) async fn build(self) -> Result<HTTPClient, Error> {
-        let mut cookie_store = None;
+        let mut cookie_provider = None;
         if self.cookie {
-            cookie_store = Some(Arc::new(self.create_cookie_store().await?));
+            cookie_provider = Some(Arc::new(self.create_cookie_provider().await?));
         }
 
         let mut headers = self.headers;
@@ -149,9 +149,8 @@ impl HTTPClientBuilder {
                 .timeout(Duration::from_secs(30));
         }
 
-        if self.cookie {
-            client_builder =
-                client_builder.cookie_provider(Arc::clone(cookie_store.as_ref().unwrap()));
+        if let Some(jar) = &cookie_provider {
+            client_builder = client_builder.cookie_provider(Arc::clone(jar));
         }
 
         if !self.allow_compress {
@@ -175,12 +174,12 @@ impl HTTPClientBuilder {
 
         Ok(HTTPClient {
             app_name: self.app_name,
-            cookie_store: RwLock::new(cookie_store),
+            cookie_provider,
             client: client_builder.build()?,
         })
     }
 
-    async fn create_cookie_store(&self) -> Result<CookieStoreMutex, Error> {
+    async fn create_cookie_provider(&self) -> Result<Jar, Error> {
         let cookie_path = HTTPClientBuilder::cookie_path(self.app_name)?;
 
         let cookie_store = if fs::try_exists(&cookie_path).await? {
@@ -203,7 +202,7 @@ impl HTTPClientBuilder {
             CookieStore::default()
         };
 
-        Ok(CookieStoreMutex::new(cookie_store))
+        Ok(Jar::new(cookie_store))
     }
 
     fn cookie_path(app_name: &str) -> Result<PathBuf, Error> {
@@ -217,7 +216,7 @@ impl HTTPClientBuilder {
 #[must_use]
 pub(crate) struct HTTPClient {
     app_name: &'static str,
-    cookie_store: RwLock<Option<Arc<CookieStoreMutex>>>,
+    cookie_provider: Option<Arc<Jar>>,
     client: Client,
 }
 
@@ -227,12 +226,11 @@ impl HTTPClient {
     }
 
     pub(crate) fn add_cookie(&self, cookie_str: &str, url: &Url) -> Result<(), Error> {
-        self.cookie_store
-            .write()
-            .unwrap()
+        self.cookie_provider
             .as_ref()
             .expect("Cookies not turned on")
-            .lock()
+            .0
+            .write()
             .unwrap()
             .parse(cookie_str, url)?;
 
@@ -240,14 +238,13 @@ impl HTTPClient {
     }
 
     pub(crate) fn shutdown(&self) -> Result<(), Error> {
-        if self.cookie_store.read().unwrap().is_some() {
+        if self.cookie_provider.is_some() {
             let mut writer = BufWriter::new(Vec::new());
-            self.cookie_store
-                .write()
+            self.cookie_provider
+                .as_ref()
                 .unwrap()
-                .take()
-                .unwrap()
-                .lock()
+                .0
+                .read()
                 .unwrap()
                 .save_json(&mut writer)?;
             let result = simdutf8::basic::from_utf8(writer.buffer())?.to_string();
@@ -283,4 +280,53 @@ impl Drop for HTTPClient {
             error!("Fail to save cookie: {err}");
         }
     }
+}
+
+struct Jar(RwLock<CookieStore>);
+
+impl Jar {
+    fn new(cookie_store: CookieStore) -> Jar {
+        Jar(RwLock::new(cookie_store))
+    }
+}
+
+impl reqwest::cookie::CookieStore for Jar {
+    fn set_cookies(&self, cookie_headers: &mut dyn Iterator<Item = &HeaderValue>, url: &url::Url) {
+        let mut write = self.0.write().unwrap();
+        set_cookies(&mut write, cookie_headers, url);
+    }
+
+    fn cookies(&self, url: &url::Url) -> Option<HeaderValue> {
+        let read = self.0.read().unwrap();
+        cookies(&read, url)
+    }
+}
+
+fn set_cookies(
+    cookie_store: &mut CookieStore,
+    cookie_headers: &mut dyn Iterator<Item = &HeaderValue>,
+    url: &url::Url,
+) {
+    let cookies = cookie_headers.filter_map(|val| {
+        std::str::from_utf8(val.as_bytes())
+            .map_err(RawCookieParseError::from)
+            .and_then(RawCookie::parse)
+            .map(|c| c.into_owned())
+            .ok()
+    });
+    cookie_store.store_response_cookies(cookies, url);
+}
+
+fn cookies(cookie_store: &CookieStore, url: &url::Url) -> Option<HeaderValue> {
+    let s = cookie_store
+        .get_request_values(url)
+        .map(|(name, value)| format!("{}={}", name, value))
+        .collect::<Vec<_>>()
+        .join("; ");
+
+    if s.is_empty() {
+        return None;
+    }
+
+    HeaderValue::from_maybe_shared(Bytes::from(s)).ok()
 }
