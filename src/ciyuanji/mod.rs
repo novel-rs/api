@@ -459,6 +459,10 @@ impl Client for CiyuanjiClient {
                 name: String::from("无限流"),
             });
             result.push(Tag {
+                id: Some(19),
+                name: String::from("后宫"),
+            });
+            result.push(Tag {
                 id: Some(26),
                 name: String::from("变身"),
             });
@@ -473,6 +477,10 @@ impl Client for CiyuanjiClient {
             result.push(Tag {
                 id: Some(127),
                 name: String::from("性转"),
+            });
+            result.push(Tag {
+                id: Some(249),
+                name: String::from("吸血鬼"),
             });
             result.push(Tag {
                 id: Some(570),
