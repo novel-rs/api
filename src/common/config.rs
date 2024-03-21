@@ -1,7 +1,7 @@
 use std::{fs, path::PathBuf};
 
 use serde::{de::DeserializeOwned, Serialize};
-use tracing::info;
+use tracing::{error, info};
 
 use crate::Error;
 
@@ -23,14 +23,17 @@ where
             config_file_path.display()
         );
 
-        let config = crate::aes_256_gcm_base64_decrypt(
+        if let Ok(config) = crate::aes_256_gcm_base64_decrypt(
             config_file_path,
             CONFIG_FILE_PASSWORD,
             CONFIG_FILE_AAD,
-        )?;
-        let config: R = toml::from_str(&config)?;
-
-        Ok(Some(config))
+        ) {
+            let config: R = toml::from_str(&config)?;
+            Ok(Some(config))
+        } else {
+            error!("Fail to decrypt the config file, a new one will be created");
+            Ok(None)
+        }
     } else {
         fs::create_dir_all(config_file_path.parent().unwrap())?;
 

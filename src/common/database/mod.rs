@@ -11,7 +11,7 @@ use tokio::{
     fs,
     io::{AsyncReadExt, AsyncWriteExt, BufReader},
 };
-use tracing::{debug, info};
+use tracing::{debug, error, info};
 use url::Url;
 
 use crate::{ChapterInfo, Error, Timing};
@@ -56,8 +56,18 @@ impl NovelDB {
         }
 
         let db_url = format!("sqlite:{}?mode=rwc", db_path.display());
-        let db = Database::connect(ConnectOptions::new(db_url)).await?;
-        Migrator::up(&db, None).await?;
+
+        let mut db = Database::connect(ConnectOptions::new(&db_url)).await?;
+        if Migrator::up(&db, None).await.is_err() {
+            error!("The file may not be a database, try recreating it");
+
+            let backup_path = db_path.with_extension("backup");
+            fs::rename(&db_path, &backup_path).await?;
+            info!("The file has been backed up to `{}`", backup_path.display());
+
+            db = Database::connect(ConnectOptions::new(&db_url)).await?;
+            Migrator::up(&db, None).await?;
+        }
 
         Ok(Self { db })
     }

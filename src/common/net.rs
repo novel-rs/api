@@ -185,13 +185,16 @@ impl HTTPClientBuilder {
         let cookie_store = if fs::try_exists(&cookie_path).await? {
             info!("The cookie file is located at: `{}`", cookie_path.display());
 
-            let json = super::aes_256_gcm_base64_decrypt(
+            if let Ok(json) = super::aes_256_gcm_base64_decrypt(
                 &cookie_path,
                 HTTPClientBuilder::COOKIE_FILE_PASSWORD,
                 HTTPClientBuilder::COOKIE_FILE_AAD,
-            )?;
-
-            CookieStore::load_json(json.as_bytes())?
+            ) {
+                CookieStore::load_json(json.as_bytes())?
+            } else {
+                error!("Fail to decrypt the cookie file, a new one will be created");
+                CookieStore::default()
+            }
         } else {
             info!(
                 "The cookie file will be created at: `{}`",
