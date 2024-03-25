@@ -22,7 +22,7 @@ serde = { version = "1.0.197", default-features = false, features = [
   "derive",
 ] }
 # https://github.com/dtolnay/async-trait
-async-trait = { version = "0.1.78", default-features = false }
+async-trait = { version = "0.1.79", default-features = false }
 # https://github.com/rust-lang/impl-trait-utils
 trait-variant = { version = "0.1.2", default-features = false }
 # https://github.com/tokio-rs/tokio
@@ -99,9 +99,9 @@ http = { version = "1.1.0", default-features = false }
 # https://github.com/servo/rust-url
 url = { version = "2.5.0", default-features = false, features = ["serde"] }
 # https://github.com/tokio-rs/bytes
-bytes = { version = "1.5.0", default-features = false, features = ["std"] }
+bytes = { version = "1.6.0", default-features = false, features = ["std"] }
 # https://github.com/seanmonstar/reqwest
-reqwest = { version = "0.12.0", default-features = false, features = [
+reqwest = { version = "0.12.1", default-features = false, features = [
   "http2",
   "rustls-tls",
   "charset",
@@ -112,7 +112,7 @@ reqwest = { version = "0.12.0", default-features = false, features = [
   "macos-system-configuration",
 ] }
 # https://github.com/tokio-rs/axum
-axum = { version = "0.7.4", default-features = false, features = [
+axum = { version = "0.7.5", default-features = false, features = [
   "http1",
   "tokio",
 ] }
