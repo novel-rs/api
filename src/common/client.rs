@@ -104,12 +104,12 @@ pub struct VolumeInfo {
 
 /// Chapter information
 #[must_use]
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct ChapterInfo {
     /// Novel id
     pub novel_id: Option<u32>,
-    /// Chapter identifier
-    pub identifier: Identifier,
+    /// Chapter id
+    pub id: u32,
     /// Chapter title
     pub title: String,
     /// Whether this chapter can only be read by VIP users
@@ -142,25 +142,6 @@ impl ChapterInfo {
     /// Is this chapter available for download
     pub fn can_download(&self) -> bool {
         !self.payment_required() && self.is_valid()
-    }
-}
-
-/// Chapter identifier
-#[must_use]
-#[derive(Debug)]
-pub enum Identifier {
-    /// Chapter id
-    Id(u32),
-    /// Chapter Url
-    Url(Url),
-}
-
-impl ToString for Identifier {
-    fn to_string(&self) -> String {
-        match self {
-            Identifier::Id(id) => id.to_string(),
-            Identifier::Url(url) => url.to_string(),
-        }
     }
 }
 

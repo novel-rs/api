@@ -5,7 +5,7 @@ use sea_orm_migration::prelude::*;
 #[derive(Iden)]
 enum Text {
     Table,
-    Identifier,
+    Id,
     DateTime,
     Content,
 }
@@ -30,12 +30,7 @@ impl MigrationTrait for Migration {
                 Table::create()
                     .table(Text::Table)
                     .if_not_exists()
-                    .col(
-                        ColumnDef::new(Text::Identifier)
-                            .string()
-                            .not_null()
-                            .primary_key(),
-                    )
+                    .col(ColumnDef::new(Text::Id).string().not_null().primary_key())
                     .col(ColumnDef::new(Text::DateTime).date_time())
                     .col(ColumnDef::new(Text::Content).binary().not_null())
                     .to_owned(),

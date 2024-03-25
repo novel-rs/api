@@ -12,7 +12,7 @@ use url::Url;
 
 use crate::{
     Category, ChapterInfo, Client, ContentInfo, ContentInfos, Error, FindImageResult,
-    FindTextResult, HTTPClient, Identifier, NovelDB, NovelInfo, Options, Tag, UserInfo, VolumeInfo,
+    FindTextResult, HTTPClient, NovelDB, NovelInfo, Options, Tag, UserInfo, VolumeInfo,
     VolumeInfos, WordCountRange,
 };
 use structure::*;
@@ -217,7 +217,7 @@ impl Client for SfacgClient {
             for chapter in volume.chapter_list {
                 let chapter_info = ChapterInfo {
                     novel_id: Some(chapter.novel_id),
-                    identifier: Identifier::Id(chapter.chap_id),
+                    id: chapter.chap_id,
                     title: chapter.title.trim().to_string(),
                     word_count: Some(chapter.char_count),
                     create_time: Some(chapter.add_time),
@@ -247,7 +247,7 @@ impl Client for SfacgClient {
             other => {
                 let response = self
                     .get_query(
-                        format!("/Chaps/{}", info.identifier.to_string()),
+                        format!("/Chaps/{}", info.id),
                         ContentInfosRequest {
                             expand: "content,isContentEncrypted",
                         },
@@ -293,17 +293,13 @@ impl Client for SfacgClient {
     }
 
     async fn buy_chapter(&self, info: &ChapterInfo) -> Result<(), Error> {
-        let Identifier::Id(id) = info.identifier else {
-            unreachable!()
-        };
-
         let response = self
             .post(
                 &format!("/novels/{}/orderedchaps", info.novel_id.unwrap()),
                 BuyChapterRequest {
                     order_all: false,
                     auto_order: false,
-                    chap_ids: vec![id],
+                    chap_ids: vec![info.id],
                     order_type: "readOrder",
                 },
             )

@@ -14,7 +14,7 @@ use url::Url;
 
 use crate::{
     Category, ChapterInfo, Client, ContentInfo, ContentInfos, Error, FindImageResult,
-    FindTextResult, HTTPClient, Identifier, NovelDB, NovelInfo, Options, Tag, UserInfo, VolumeInfo,
+    FindTextResult, HTTPClient, NovelDB, NovelInfo, Options, Tag, UserInfo, VolumeInfo,
     VolumeInfos, WordCountRange,
 };
 use structure::*;
@@ -299,7 +299,7 @@ impl Client for CiyuanjiClient {
 
                 let chapter_info = ChapterInfo {
                     novel_id: Some(book_id),
-                    identifier: Identifier::Id(chapter.chapter_id),
+                    id: chapter.chapter_id,
                     title: chapter.chapter_name.trim().to_string(),
                     is_vip: Some(chapter.is_fee == "1"),
                     // 去除小数部分
@@ -333,7 +333,7 @@ impl Client for CiyuanjiClient {
                         "/chapter/getChapterContent",
                         ContentRequest {
                             book_id: info.novel_id.unwrap().to_string(),
-                            chapter_id: info.identifier.to_string(),
+                            chapter_id: info.id.to_string(),
                         },
                     )
                     .await?
@@ -395,7 +395,7 @@ impl Client for CiyuanjiClient {
                     // always 1
                     consume_type: "1",
                     book_id: info.novel_id.unwrap().to_string(),
-                    product_id: info.identifier.to_string(),
+                    product_id: info.id.to_string(),
                     buy_count: "1",
                 },
             )

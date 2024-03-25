@@ -22,7 +22,7 @@ use url::Url;
 
 use crate::{
     Category, ChapterInfo, Client, ContentInfo, ContentInfos, Error, FindImageResult,
-    FindTextResult, HTTPClient, Identifier, NovelDB, NovelInfo, Options, Tag, UserInfo, VolumeInfo,
+    FindTextResult, HTTPClient, NovelDB, NovelInfo, Options, Tag, UserInfo, VolumeInfo,
     VolumeInfos, WordCountRange,
 };
 use structure::*;
@@ -240,7 +240,7 @@ impl Client for CiweimaoClient {
 
                 let chapter_info = ChapterInfo {
                     novel_id: Some(id),
-                    identifier: Identifier::Id(chapter_id),
+                    id: chapter_id,
                     title: chapter.chapter_title.trim().to_string(),
                     word_count: Some(chapter.word_count.parse()?),
                     create_time: Some(chapter.mtime),
@@ -268,16 +268,14 @@ impl Client for CiweimaoClient {
                 content = str;
             }
             other => {
-                let identifier = info.identifier.to_string();
-
-                let cmd = self.chapter_cmd(&identifier).await?;
+                let cmd = self.chapter_cmd(info.id).await?;
                 let key = crate::sha256(cmd.as_bytes());
 
                 let response: ChapsResponse = self
                     .post(
                         "/chapter/get_cpt_ifm",
                         ChapsRequest {
-                            chapter_id: identifier,
+                            chapter_id: info.id.to_string(),
                             chapter_command: cmd,
                         },
                     )
@@ -321,7 +319,7 @@ impl Client for CiweimaoClient {
             .post(
                 "/chapter/buy",
                 BuyRequest {
-                    chapter_id: info.identifier.to_string(),
+                    chapter_id: info.id.to_string(),
                 },
             )
             .await?;
@@ -699,15 +697,12 @@ impl CiweimaoClient {
         Ok(result)
     }
 
-    async fn chapter_cmd<T>(&self, identifier: T) -> Result<String, Error>
-    where
-        T: AsRef<str>,
-    {
+    async fn chapter_cmd(&self, id: u32) -> Result<String, Error> {
         let response: ChapterCmdResponse = self
             .post(
                 "/chapter/get_chapter_cmd",
                 ChapterCmdRequest {
-                    chapter_id: identifier.as_ref().to_string(),
+                    chapter_id: id.to_string(),
                 },
             )
             .await?;

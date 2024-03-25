@@ -80,9 +80,7 @@ impl NovelDB {
     pub(crate) async fn find_text(&self, info: &ChapterInfo) -> Result<FindTextResult, Error> {
         let mut timing = Timing::new();
 
-        let identifier = info.identifier.to_string();
-
-        let result = match Text::find_by_id(identifier).one(&self.db).await? {
+        let result = match Text::find_by_id(info.id).one(&self.db).await? {
             Some(model) => {
                 let saved_data_time = model.date_time;
                 let time = NovelDB::get_time(info);
@@ -114,7 +112,7 @@ impl NovelDB {
         let mut timing = Timing::new();
 
         let model = entity::text::ActiveModel {
-            identifier: sea_orm::Set(info.identifier.to_string()),
+            id: sea_orm::Set(info.id),
             date_time: sea_orm::Set(NovelDB::get_time(info)),
             content: sea_orm::Set(zstd_compress(text.as_ref().as_bytes()).await?),
         };
@@ -132,7 +130,7 @@ impl NovelDB {
         let mut timing = Timing::new();
 
         let model = entity::text::ActiveModel {
-            identifier: sea_orm::Set(info.identifier.to_string()),
+            id: sea_orm::Set(info.id),
             date_time: sea_orm::Set(NovelDB::get_time(info)),
             content: sea_orm::Set(zstd_compress(text.as_ref().as_bytes()).await?),
         };
@@ -231,8 +229,6 @@ mod tests {
 
     use pretty_assertions::assert_eq;
 
-    use crate::Identifier;
-
     #[tokio::test]
     async fn zstd() -> Result<(), Error> {
         let data = "test-data";
@@ -245,23 +241,6 @@ mod tests {
         Ok(())
     }
 
-    impl Default for ChapterInfo {
-        fn default() -> Self {
-            Self {
-                novel_id: Default::default(),
-                identifier: Identifier::Id(0),
-                title: Default::default(),
-                is_vip: Default::default(),
-                price: Default::default(),
-                payment_required: Default::default(),
-                is_valid: Default::default(),
-                word_count: Default::default(),
-                create_time: Default::default(),
-                update_time: Default::default(),
-            }
-        }
-    }
-
     #[tokio::test]
     async fn db() -> Result<(), Error> {
         let app_name = "test-app";
@@ -270,13 +249,13 @@ mod tests {
         let db = NovelDB::new(app_name).await?;
 
         let chapter_info_old = ChapterInfo {
-            identifier: Identifier::Id(0),
+            id: 0,
             update_time: Some(NaiveDateTime::from_str("2020-07-08T15:25:15")?),
             ..Default::default()
         };
 
         let chapter_info_new = ChapterInfo {
-            identifier: Identifier::Id(0),
+            id: 0,
             update_time: Some(NaiveDateTime::from_str("2020-07-08T15:25:17")?),
             ..Default::default()
         };
