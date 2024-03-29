@@ -17,7 +17,7 @@ use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use tokio::sync::OnceCell;
-use tracing::{error, info, warn};
+use tracing::{error, info};
 use url::Url;
 
 use crate::{
@@ -236,7 +236,7 @@ impl Client for CiweimaoClient {
 
                 // e.g. 该章节未审核通过
                 if price.is_none() {
-                    warn!("Price not found: {chapter_id}");
+                    info!("Price not found: {chapter_id}");
                     is_valid = false;
                 }
 
