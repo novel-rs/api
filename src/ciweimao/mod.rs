@@ -17,7 +17,7 @@ use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use tokio::sync::OnceCell;
-use tracing::{error, info};
+use tracing::{error, info, warn};
 use url::Url;
 
 use crate::{
@@ -232,10 +232,12 @@ impl Client for CiweimaoClient {
             for chapter in item.chapter_list {
                 let chapter_id: u32 = chapter.chapter_id.parse()?;
                 let price = chapter_prices.get(&chapter_id).copied();
+                let mut is_valid = true;
 
                 // e.g. 该章节未审核通过
                 if price.is_none() {
-                    error!("Price not found: {chapter_id}");
+                    warn!("Price not found: {chapter_id}");
+                    is_valid = false;
                 }
 
                 let chapter_info = ChapterInfo {
@@ -248,7 +250,7 @@ impl Client for CiweimaoClient {
                     is_vip: Some(chapter.is_paid),
                     price,
                     payment_required: Some(!chapter.auth_access),
-                    is_valid: Some(chapter.is_valid),
+                    is_valid: Some(chapter.is_valid && is_valid),
                 };
 
                 volume_info.chapter_infos.push(chapter_info);
