@@ -26,7 +26,7 @@ async-trait = { version = "0.1.79", default-features = false }
 # https://github.com/rust-lang/impl-trait-utils
 trait-variant = { version = "0.1.2", default-features = false }
 # https://github.com/tokio-rs/tokio
-tokio = { version = "1.36.0", default-features = false, features = [
+tokio = { version = "1.37.0", default-features = false, features = [
   "fs",
   "sync",
   # for connect_timeout
@@ -41,7 +41,7 @@ simdutf8 = { version = "0.1.4", default-features = false, features = [
   "aarch64_neon",
 ] }
 # https://github.com/serde-rs/json
-serde_json = { version = "1.0.114", default-features = false, features = [
+serde_json = { version = "1.0.115", default-features = false, features = [
   "std",
 ] }
 # https://github.com/causal-agent/scraper
@@ -53,7 +53,7 @@ uuid = { version = "1.8.0", default-features = false, features = [
   "fast-rng",
 ] }
 # https://github.com/chronotope/chrono
-chrono = { version = "0.4.35", default-features = false, features = [
+chrono = { version = "0.4.37", default-features = false, features = [
   "std",
   "clock",
   "serde",
@@ -101,7 +101,7 @@ url = { version = "2.5.0", default-features = false, features = ["serde"] }
 # https://github.com/tokio-rs/bytes
 bytes = { version = "1.6.0", default-features = false, features = ["std"] }
 # https://github.com/seanmonstar/reqwest
-reqwest = { version = "0.12.1", default-features = false, features = [
+reqwest = { version = "0.12.2", default-features = false, features = [
   "http2",
   "rustls-tls",
   "charset",
@@ -207,7 +207,7 @@ pretty_assertions = { version = "1.4.0", default-features = false, features = [
   "std",
 ] }
 # https://github.com/tokio-rs/tokio
-tokio = { version = "1.36.0", default-features = false, features = [
+tokio = { version = "1.37.0", default-features = false, features = [
   "macros",
   "rt-multi-thread",
 ] }
