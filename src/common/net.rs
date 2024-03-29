@@ -9,7 +9,7 @@ use std::{
 use bytes::Bytes;
 use cookie_store::{CookieStore, RawCookie, RawCookieParseError};
 use reqwest::{
-    header::{HeaderMap, HeaderValue, IntoHeaderName, ACCEPT},
+    header::{HeaderMap, HeaderValue, IntoHeaderName, ACCEPT, CONNECTION},
     redirect, Certificate, Client, Proxy, StatusCode,
 };
 use tokio::fs;
@@ -136,11 +136,13 @@ impl HTTPClientBuilder {
         let mut headers = self.headers;
         if self.accept.is_some() {
             headers.insert(ACCEPT, self.accept.unwrap());
+            headers.insert(CONNECTION, HeaderValue::from_static("keep-alive"));
         }
 
         let mut client_builder = Client::builder()
             .default_headers(headers)
             .redirect(redirect::Policy::none())
+            .http2_keep_alive_interval(Duration::from_secs(5))
             .user_agent(self.user_agent);
 
         if !is_ci::cached() {
