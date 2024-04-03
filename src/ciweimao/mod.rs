@@ -135,7 +135,7 @@ impl Client for CiweimaoClient {
         Ok(prop_info.rest_hlb.parse()?)
     }
 
-    async fn sign(&self) -> Result<(), Error> {
+    async fn sign_in(&self) -> Result<(), Error> {
         let response: GenericResponse = self
             .post(
                 "/reader/get_task_bonus_with_sign_recommend",

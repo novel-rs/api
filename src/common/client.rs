@@ -220,8 +220,8 @@ pub trait Client {
     /// Get user's existing money
     async fn money(&self) -> Result<u32, Error>;
 
-    /// Sign
-    async fn sign(&self) -> Result<(), Error>;
+    /// Sign in
+    async fn sign_in(&self) -> Result<(), Error>;
 
     /// Get the favorite novel of the logged-in user and return the novel id
     async fn bookshelf_infos(&self) -> Result<Vec<u32>, Error>;

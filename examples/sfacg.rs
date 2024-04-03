@@ -14,7 +14,7 @@ async fn main() -> Result<()> {
     let money = client.money().await?;
     println!("{money}");
 
-    client.sign().await?;
+    client.sign_in().await?;
 
     let bookshelf_infos = client.bookshelf_infos().await?;
     println!("{bookshelf_infos:#?}");

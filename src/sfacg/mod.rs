@@ -101,7 +101,7 @@ impl Client for SfacgClient {
         Ok(data.fire_money_remain + data.coupons_remain)
     }
 
-    async fn sign(&self) -> Result<(), Error> {
+    async fn sign_in(&self) -> Result<(), Error> {
         let now: DateTime<Tz> = Utc::now().with_timezone(&Shanghai);
 
         let response = self

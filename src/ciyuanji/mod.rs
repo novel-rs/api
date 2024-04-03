@@ -149,7 +149,7 @@ impl Client for CiyuanjiClient {
         Ok(account_info.currency_balance + account_info.coupon_balance)
     }
 
-    async fn sign(&self) -> Result<(), Error> {
+    async fn sign_in(&self) -> Result<(), Error> {
         let response = self
             .post("/sign/sign", EmptyRequest {})
             .await?
