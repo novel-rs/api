@@ -59,7 +59,7 @@ chrono = { version = "0.4.37", default-features = false, features = [
   "serde",
 ] }
 # https://github.com/chronotope/chrono-tz
-chrono-tz = { version = "0.8.6", default-features = false, features = ["std"] }
+chrono-tz = { version = "0.9.0", default-features = false, features = ["std"] }
 # https://github.com/tokio-rs/tracing
 tracing = { version = "0.1.40", default-features = false, features = ["std"] }
 # https://github.com/Nugine/simd
@@ -142,7 +142,7 @@ image = { version = "=0.24", default-features = false, features = [
 # https://github.com/jaredforth/webp
 webp = { version = "0.2.7", default-features = false }
 # https://github.com/Nemo157/async-compression
-async-compression = { version = "0.4.7", default-features = false, features = [
+async-compression = { version = "0.4.8", default-features = false, features = [
   "tokio",
   "zstdmt",
 ] }
