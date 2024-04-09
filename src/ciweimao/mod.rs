@@ -506,7 +506,6 @@ impl Client for CiweimaoClient {
             {
                 result.push(novel_info.book_id.parse()?);
             }
-            result.push(novel_info.book_id.parse()?);
         }
 
         Ok(Some(result))
