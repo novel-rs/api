@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.0] - 2024-04-11
+
+### ⛰️ Features
+
+- _(ciyuanji)_ Add some tags
+- Ignore errors when file is parsed incorrectly
+- _(net)_ Set timeout
+- Rewritten most of the code
+
+### 🐛 Bug Fixes
+
+- _(ciweimao)_ Wrong search
+- _(ci)_ Use macos-14 instead of macos-latest
+- Sometimes encounters errors when sending requests
+- _(ciweimao)_ Chapters without price are invalid
+- Wrong sql type
+- Fix some warnings
+- Some minor fixes
+
+### 🚜 Refactor
+
+- Rename client api name
+- Change log level
+- Remove db timing
+- _(utils)_ Change save_as_webp's parameter
+- Remove Identifier type
+- _(net)_ Update reqwest and remove reqwest_cookie_store
+- Rename a field
+
+### ⚙️ Miscellaneous Tasks
+
+- Upgrade various project files
+- Upgrade various project files
+
 ## [0.9.0] - 2023-07-31
 
 ### ⛰️ Features
