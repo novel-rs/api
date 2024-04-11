@@ -204,7 +204,7 @@ is_ci = { version = "1.2.0", default-features = false }
 
 [dev-dependencies]
 # https://github.com/dtolnay/anyhow
-anyhow = { version = "1.0.81", default-features = false, features = ["std"] }
+anyhow = { version = "1.0.82", default-features = false, features = ["std"] }
 # https://github.com/rust-pretty-assertions/rust-pretty-assertions
 pretty_assertions = { version = "1.4.0", default-features = false, features = [
   "std",
