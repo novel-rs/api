@@ -23,7 +23,7 @@ impl CiyuanjiClient {
     pub(crate) const FAILED: &'static str = "400";
     pub(crate) const ALREADY_SIGNED_IN_MSG: &'static str = "今日已签到";
 
-    const VERSION: &'static str = "3.4.1";
+    const VERSION: &'static str = "3.4.2";
     const PLATFORM: &'static str = "1";
 
     const USER_AGENT: &'static str = "Mozilla/5.0 (Linux; Android 11; Pixel 4 XL Build/RP1A.200720.009; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/92.0.4515.115 Mobile Safari/537.36";

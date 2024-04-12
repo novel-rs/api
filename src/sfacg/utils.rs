@@ -13,7 +13,7 @@ impl SfacgClient {
     const APP_NAME: &'static str = "sfacg";
 
     const HOST: &'static str = "https://api.sfacg.com";
-    const USER_AGENT: &'static str = "boluobao/5.0.38(android;31)/H5/{}/H5";
+    const USER_AGENT: &'static str = "boluobao/5.0.46(android;31)/H5/{}/H5";
     const USER_AGENT_RSS: &'static str =
         "Dalvik/2.1.0 (Linux; U; Android 12; sdk_gphone64_arm64 Build/SE1A.220203.002.A1)";
 
