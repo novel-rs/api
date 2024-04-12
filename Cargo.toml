@@ -1,6 +1,6 @@
 [package]
 name = "novel-api"
-version = "0.10.0"
+version = "0.10.1"
 edition = "2021"
 rust-version = "1.75"
 license = "MIT OR Apache-2.0"
@@ -8,9 +8,9 @@ authors = ["Terakomari <im.terakomari@icloud.com>"]
 repository = "https://github.com/novel-rs/api"
 homepage = "https://github.com/novel-rs/api"
 documentation = "https://docs.rs/novel-api"
-description = "Apis of sfacg and ciweimao"
+description = "Novel APIs from various sources"
 readme = "README.md"
-keywords = ["novel", "sfacg", "ciweimao"]
+keywords = ["novel", "sfacg", "ciweimao", "ciyuanji"]
 categories = ["command-line-utilities"]
 
 [dependencies]
@@ -22,7 +22,7 @@ serde = { version = "1.0.197", default-features = false, features = [
   "derive",
 ] }
 # https://github.com/dtolnay/async-trait
-async-trait = { version = "0.1.79", default-features = false }
+async-trait = { version = "0.1.80", default-features = false }
 # https://github.com/rust-lang/impl-trait-utils
 trait-variant = { version = "0.1.2", default-features = false }
 # https://github.com/tokio-rs/tokio
