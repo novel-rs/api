@@ -61,6 +61,8 @@ impl NovelDB {
         if Migrator::up(&db, None).await.is_err() {
             error!("The file may not be a database, try recreating it");
 
+            db.close().await?;
+
             let backup_path = db_path.with_extension("backup");
             fs::rename(&db_path, &backup_path).await?;
             info!("The file has been backed up to `{}`", backup_path.display());
