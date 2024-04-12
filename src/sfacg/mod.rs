@@ -397,6 +397,8 @@ impl Client for SfacgClient {
         page: u16,
         size: u16,
     ) -> Result<Option<Vec<u32>>, Error> {
+        assert!(size <= 50, "The maximum number of items per page is 50");
+
         if option.keyword.is_some() {
             self.do_search_with_keyword(option, page, size).await
         } else {
