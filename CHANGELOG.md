@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.1] - 2024-04-12
+
+### 🐛 Bug Fixes
+
+- _(sfacg)_ Add assert to limit search size
+- Close connection before moving database
+
+### 📚 Documentation
+
+- Update README.md
+
 ## [0.10.0] - 2024-04-11
 
 ### ⛰️ Features
