@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.2] - 2024-04-13
+
+### 🐛 Bug Fixes
+
+- _(ciyuanji)_ Some chapters failed to download
+
+### 📚 Documentation
+
+- Update README.md
+
+### ⚙️ Miscellaneous Tasks
+
+- Update app version
+
 ## [0.10.1] - 2024-04-12
 
 ### 🐛 Bug Fixes
