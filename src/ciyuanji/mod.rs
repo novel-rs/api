@@ -347,11 +347,11 @@ impl Client for CiyuanjiClient {
                     chapter.content.replace('\n', ""),
                 )?;
 
-                if !chapter.img_list.is_empty() {
+                if chapter.img_list.as_ref().is_some_and(|x| !x.is_empty()) {
                     let mut content_lines: Vec<_> =
                         content.lines().map(|x| x.to_string()).collect();
 
-                    for img in chapter.img_list {
+                    for img in chapter.img_list.as_ref().unwrap() {
                         let image_str = format!("[img]{}[/img]", img.img_url);
                         content_lines.insert(img.paragraph_index, image_str);
                     }

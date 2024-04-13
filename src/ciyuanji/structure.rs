@@ -257,7 +257,7 @@ pub(crate) struct ContentData {
 #[serde(rename_all = "camelCase")]
 pub(crate) struct ContentChapter {
     pub content: String,
-    pub img_list: Vec<ContentImage>,
+    pub img_list: Option<Vec<ContentImage>>,
 }
 
 #[must_use]
