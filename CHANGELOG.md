@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.3] - 2024-04-17
+
+### ⚙️ Miscellaneous Tasks
+
+- _(ciweimao)_ Downgrade app version
+
 ## [0.10.2] - 2024-04-13
 
 ### 🐛 Bug Fixes
