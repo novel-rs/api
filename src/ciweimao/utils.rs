@@ -21,11 +21,12 @@ impl CiweimaoClient {
     pub(crate) const NOT_FOUND: &'static str = "320001";
     pub(crate) const ALREADY_SIGNED_IN: &'static str = "340001";
 
-    pub(crate) const APP_VERSION: &'static str = "2.9.323";
+    // TODO 2.9.322 增加了新的参数验证
+    pub(crate) const APP_VERSION: &'static str = "2.9.319";
     pub(crate) const DEVICE_TOKEN: &'static str = "ciweimao_";
 
     const USER_AGENT: &'static str =
-        "Android com.kuangxiangciweimao.novel 2.9.323,google, sdk_gphone64_arm64, 31, 12";
+        "Android com.kuangxiangciweimao.novel 2.9.319,google, sdk_gphone64_arm64, 31, 12";
     const USER_AGENT_RSS: &'static str =
         "Dalvik/2.1.0 (Linux; U; Android 12; sdk_gphone64_arm64 Build/SE1A.220203.002.A1)";
 
