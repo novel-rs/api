@@ -17,7 +17,7 @@ categories = ["command-line-utilities"]
 # https://github.com/dtolnay/thiserror
 thiserror = { version = "1.0.58", default-features = false }
 # https://github.com/serde-rs/serde
-serde = { version = "1.0.197", default-features = false, features = [
+serde = { version = "1.0.198", default-features = false, features = [
   "std",
   "derive",
 ] }
@@ -41,7 +41,7 @@ simdutf8 = { version = "0.1.4", default-features = false, features = [
   "aarch64_neon",
 ] }
 # https://github.com/serde-rs/json
-serde_json = { version = "1.0.115", default-features = false, features = [
+serde_json = { version = "1.0.116", default-features = false, features = [
   "std",
 ] }
 # https://github.com/causal-agent/scraper
@@ -53,7 +53,7 @@ uuid = { version = "1.8.0", default-features = false, features = [
   "fast-rng",
 ] }
 # https://github.com/chronotope/chrono
-chrono = { version = "0.4.37", default-features = false, features = [
+chrono = { version = "0.4.38", default-features = false, features = [
   "std",
   "clock",
   "serde",
