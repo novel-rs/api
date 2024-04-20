@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 
 - _(ciweimao)_ Add a non-system tag
 
+### 🐛 Bug Fixes
+
+- _(ci)_ Temporarily turn off semver-checks because webp yanked
+
 ### ⚙️ Miscellaneous Tasks
 
 - _(ci)_ Remove unnecessary operations
