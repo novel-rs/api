@@ -392,6 +392,11 @@ impl Client for CiweimaoClient {
                 });
             }
 
+            result.push(Tag {
+                id: None,
+                name: String::from("橘子"),
+            });
+
             Ok(result)
         })
         .await
