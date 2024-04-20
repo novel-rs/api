@@ -278,7 +278,7 @@ pub(crate) struct Tag {
 pub(crate) struct SearchRequest {
     pub count: u16,
     pub page: u16,
-    pub order: &'static str,
+    pub order: Option<&'static str>,
     pub category_index: u16,
     pub tags: String,
     pub key: Option<String>,

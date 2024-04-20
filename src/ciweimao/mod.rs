@@ -469,14 +469,22 @@ impl Client for CiweimaoClient {
             }
         }
 
+        let order = if option.keyword.is_some() {
+            // When using keyword search, many irrelevant items will appear in the search results
+            // If you use sorting, you will not be able to obtain the target items
+            None
+        } else {
+            // 人气排序
+            Some("week_click")
+        };
+
         let response: SearchResponse = self
             .post(
                 "/bookcity/get_filter_search_book_list",
                 SearchRequest {
                     count: size,
                     page,
-                    // 人气排序
-                    order: "week_click",
+                    order,
                     category_index,
                     tags: json!(tags).to_string(),
                     key: option.keyword.clone(),
