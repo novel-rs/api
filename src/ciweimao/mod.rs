@@ -396,6 +396,22 @@ impl Client for CiweimaoClient {
                 id: None,
                 name: String::from("橘子"),
             });
+            result.push(Tag {
+                id: None,
+                name: String::from("变身"),
+            });
+            result.push(Tag {
+                id: None,
+                name: String::from("性转"),
+            });
+            result.push(Tag {
+                id: None,
+                name: String::from("纯百"),
+            });
+            result.push(Tag {
+                id: None,
+                name: String::from("变百"),
+            });
 
             Ok(result)
         })
