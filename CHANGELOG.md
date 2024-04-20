@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.5] - 2024-04-20
+
+### ⛰️ Features
+
+- _(ciweimao)_ Add some non-system tags
+
+### 🐛 Bug Fixes
+
+- _(ciweimao)_ Keyword search results are incorrect
+
 ## [0.10.4] - 2024-04-20
 
 ### ⛰️ Features
