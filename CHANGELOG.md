@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.4] - 2024-04-20
+
+### ⛰️ Features
+
+- _(ciweimao)_ Add a non-system tag
+
+### ⚙️ Miscellaneous Tasks
+
+- _(ci)_ Remove unnecessary operations
+
 ## [0.10.3] - 2024-04-17
 
 ### ⚙️ Miscellaneous Tasks
