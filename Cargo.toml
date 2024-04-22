@@ -15,7 +15,7 @@ categories = ["command-line-utilities"]
 
 [dependencies]
 # https://github.com/dtolnay/thiserror
-thiserror = { version = "1.0.58", default-features = false }
+thiserror = { version = "1.0.59", default-features = false }
 # https://github.com/serde-rs/serde
 serde = { version = "1.0.198", default-features = false, features = [
   "std",
@@ -131,13 +131,12 @@ rust-embed = { version = "8.3.0", default-features = false }
 mime_guess = { version = "2.0.4", default-features = false, features = [
   "rev-mappings",
 ] }
-# pin for viuer
 # https://github.com/image-rs/image
-image = { version = "=0.24", default-features = false, features = [
+image = { version = "0.25.1", default-features = false, features = [
   "png",
   "jpeg",
   "webp",
-  "jpeg_rayon",
+  "rayon",
 ] }
 # https://github.com/jaredforth/webp
 webp = { version = "0.3.0", default-features = false }
