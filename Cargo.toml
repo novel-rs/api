@@ -139,7 +139,7 @@ image = { version = "0.25.1", default-features = false, features = [
   "rayon",
 ] }
 # https://github.com/jaredforth/webp
-webp = { version = "0.3.0", default-features = false }
+webp = { version = "0.3.0", default-features = false, features = ["img"] }
 # https://github.com/Nemo157/async-compression
 async-compression = { version = "0.4.8", default-features = false, features = [
   "tokio",
