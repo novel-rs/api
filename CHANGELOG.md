@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.6] - 2024-04-22
+
+### 🐛 Bug Fixes
+
+- _(ciweimao)_ Remove an invalid non-system tag
+
 ## [0.10.5] - 2024-04-20
 
 ### ⛰️ Features
