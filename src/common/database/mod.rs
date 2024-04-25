@@ -1,7 +1,7 @@
 mod entity;
 mod migration;
 
-use std::{io::Cursor, path::PathBuf};
+use std::{io::Cursor, path::PathBuf, time::Duration};
 
 use async_compression::tokio::{bufread::ZstdDecoder, write::ZstdEncoder};
 use chrono::NaiveDateTime;
@@ -57,7 +57,10 @@ impl NovelDB {
 
         let db_url = format!("sqlite:{}?mode=rwc", db_path.display());
 
-        let mut db = Database::connect(ConnectOptions::new(&db_url)).await?;
+        let mut opt = ConnectOptions::new(&db_url);
+        opt.connect_timeout(Duration::from_secs(10));
+
+        let mut db = Database::connect(opt).await?;
         if Migrator::up(&db, None).await.is_err() {
             error!("The file may not be a database, try recreating it");
 
