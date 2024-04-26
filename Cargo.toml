@@ -96,23 +96,21 @@ directories = { version = "5.0.1", default-features = false }
 # pin for reqwest
 cookie_store = { version = "=0.20", default-features = false }
 # https://github.com/hyperium/http
-# pin for reqwest
-http = { version = "=0.2", default-features = false }
+http = { version = "1.1.0", default-features = false }
 # https://github.com/servo/rust-url
 url = { version = "2.5.0", default-features = false, features = ["serde"] }
 # https://github.com/tokio-rs/bytes
 bytes = { version = "1.6.0", default-features = false, features = ["std"] }
 # https://github.com/seanmonstar/reqwest
-# version 0.12 sometimes encounters errors when sending requests
-reqwest = { version = "=0.11", default-features = false, features = [
-  # "http2",
+reqwest = { version = "0.12.4", default-features = false, features = [
+  "http2",
   "rustls-tls",
-  # "charset",
+  "charset",
   "cookies",
   "gzip",
   "json",
   "hickory-dns",
-  # "macos-system-configuration",
+  "macos-system-configuration",
 ] }
 # https://github.com/tokio-rs/axum
 axum = { version = "0.7.5", default-features = false, features = [
@@ -185,7 +183,7 @@ dialoguer = { version = "0.11.0", default-features = false, features = [
   "password",
 ] }
 # https://github.com/jonasbb/serde_with
-serde_with = { version = "3.7.0", default-features = false, features = [
+serde_with = { version = "3.8.0", default-features = false, features = [
   "std",
   "macros",
 ] }
