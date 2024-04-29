@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.7] - 2024-04-29
+
+### ⛰️ Features
+
+- Set connect timeout for db connect
+
+### 🐛 Bug Fixes
+
+- _(ciweimao)_ Http request occasionally fails
+
+### 🚜 Refactor
+
+- Simplify webp saving
+
+### ⚙️ Miscellaneous Tasks
+
+- _(ci)_ Coverage is no longer run during pull_request
+- Add examples
+
 ## [0.10.6] - 2024-04-22
 
 ### 🐛 Bug Fixes
