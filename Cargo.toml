@@ -17,7 +17,7 @@ categories = ["command-line-utilities"]
 # https://github.com/dtolnay/thiserror
 thiserror = { version = "1.0.59", default-features = false }
 # https://github.com/serde-rs/serde
-serde = { version = "1.0.198", default-features = false, features = [
+serde = { version = "1.0.199", default-features = false, features = [
   "std",
   "derive",
 ] }
@@ -139,7 +139,7 @@ image = { version = "0.25.1", default-features = false, features = [
 # https://github.com/jaredforth/webp
 webp = { version = "0.3.0", default-features = false, features = ["img"] }
 # https://github.com/Nemo157/async-compression
-async-compression = { version = "0.4.8", default-features = false, features = [
+async-compression = { version = "0.4.9", default-features = false, features = [
   "tokio",
   "zstdmt",
 ] }
@@ -183,7 +183,7 @@ dialoguer = { version = "0.11.0", default-features = false, features = [
   "password",
 ] }
 # https://github.com/jonasbb/serde_with
-serde_with = { version = "3.8.0", default-features = false, features = [
+serde_with = { version = "3.8.1", default-features = false, features = [
   "std",
   "macros",
 ] }
@@ -192,7 +192,7 @@ itertools = { version = "0.12.1", default-features = false, features = [
   "use_std",
 ] }
 # https://github.com/rust-lang/hashbrown
-hashbrown = { version = "0.14.3", default-features = false, features = [
+hashbrown = { version = "0.14.5", default-features = false, features = [
   "ahash",
   "inline-more",
 ] }
