@@ -148,13 +148,34 @@ impl CiweimaoClient {
         E: Serialize,
         R: DeserializeOwned,
     {
-        let response = self
-            .client()
-            .await?
-            .post(CiweimaoClient::HOST.to_string() + url.as_ref())
-            .form(&self.append_param(form)?)
-            .send()
-            .await?;
+        // TODO Version 0.12 may fail when there are high concurrent requests
+        // But version 0.11 does not, find out the reason
+        let mut count = 0;
+
+        let response = loop {
+            let response = self
+                .client()
+                .await?
+                .post(CiweimaoClient::HOST.to_string() + url.as_ref())
+                .form(&self.append_param(&form)?)
+                .send()
+                .await;
+
+            if let Ok(response) = response {
+                break response;
+            } else {
+                info!(
+                    "HTTP request failed: `{}`, retry, number of times: `{count}`",
+                    response.as_ref().unwrap_err()
+                );
+
+                count += 1;
+                if count > 3 {
+                    response?;
+                }
+            }
+        };
+
         crate::check_status(
             response.status(),
             format!("HTTP request failed: `{}`", url.as_ref()),
