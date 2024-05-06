@@ -17,7 +17,7 @@ categories = ["command-line-utilities"]
 # https://github.com/dtolnay/thiserror
 thiserror = { version = "1.0.59", default-features = false }
 # https://github.com/serde-rs/serde
-serde = { version = "1.0.199", default-features = false, features = [
+serde = { version = "1.0.200", default-features = false, features = [
   "std",
   "derive",
 ] }
@@ -160,7 +160,7 @@ toml = { version = "0.8.12", default-features = false, features = [
   "display",
 ] }
 # https://github.com/hwchen/keyring-rs
-keyring = { version = "2.3.2", default-features = false, features = [
+keyring = { version = "2.3.3", default-features = false, features = [
   "platform-macos",
   "platform-windows",
   "linux-no-secret-service",
