@@ -1,4 +1,5 @@
 use std::{
+    fmt::{self, Display},
     ops::{Range, RangeFrom, RangeTo},
     path::PathBuf,
 };
@@ -67,9 +68,9 @@ pub struct Category {
     pub name: String,
 }
 
-impl ToString for Category {
-    fn to_string(&self) -> String {
-        self.name.to_string()
+impl Display for Category {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.name)
     }
 }
 
@@ -83,9 +84,9 @@ pub struct Tag {
     pub name: String,
 }
 
-impl ToString for Tag {
-    fn to_string(&self) -> String {
-        self.name.to_string()
+impl Display for Tag {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.name)
     }
 }
 
