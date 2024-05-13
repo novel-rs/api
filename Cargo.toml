@@ -15,9 +15,9 @@ categories = ["command-line-utilities"]
 
 [dependencies]
 # https://github.com/dtolnay/thiserror
-thiserror = { version = "1.0.59", default-features = false }
+thiserror = { version = "1.0.60", default-features = false }
 # https://github.com/serde-rs/serde
-serde = { version = "1.0.200", default-features = false, features = [
+serde = { version = "1.0.201", default-features = false, features = [
   "std",
   "derive",
 ] }
@@ -41,7 +41,7 @@ simdutf8 = { version = "0.1.4", default-features = false, features = [
   "aarch64_neon",
 ] }
 # https://github.com/serde-rs/json
-serde_json = { version = "1.0.116", default-features = false, features = [
+serde_json = { version = "1.0.117", default-features = false, features = [
   "std",
 ] }
 # https://github.com/causal-agent/scraper
@@ -123,7 +123,7 @@ askama = { version = "0.12.1", default-features = false, features = [
 # https://github.com/djc/askama
 askama_axum = { version = "0.4.0", default-features = false }
 # https://github.com/pyrossh/rust-embed
-rust-embed = { version = "8.3.0", default-features = false }
+rust-embed = { version = "8.4.0", default-features = false }
 # https://github.com/abonander/mime_guess
 mime_guess = { version = "2.0.4", default-features = false, features = [
   "rev-mappings",
@@ -138,7 +138,7 @@ image = { version = "0.25.1", default-features = false, features = [
 # https://github.com/jaredforth/webp
 webp = { version = "0.3.0", default-features = false, features = ["img"] }
 # https://github.com/Nemo157/async-compression
-async-compression = { version = "0.4.9", default-features = false, features = [
+async-compression = { version = "0.4.10", default-features = false, features = [
   "tokio",
   "zstdmt",
 ] }
@@ -200,7 +200,7 @@ is_ci = { version = "1.2.0", default-features = false }
 
 [dev-dependencies]
 # https://github.com/dtolnay/anyhow
-anyhow = { version = "1.0.82", default-features = false, features = ["std"] }
+anyhow = { version = "1.0.83", default-features = false, features = ["std"] }
 # https://github.com/rust-pretty-assertions/rust-pretty-assertions
 pretty_assertions = { version = "1.4.0", default-features = false, features = [
   "std",
