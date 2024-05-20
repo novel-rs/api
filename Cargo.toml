@@ -187,7 +187,7 @@ serde_with = { version = "3.8.1", default-features = false, features = [
   "macros",
 ] }
 # https://github.com/rust-itertools/itertools
-itertools = { version = "0.12.1", default-features = false, features = [
+itertools = { version = "0.13.0", default-features = false, features = [
   "use_std",
 ] }
 # https://github.com/rust-lang/hashbrown
