@@ -12,6 +12,7 @@ description = "Novel APIs from various sources"
 readme = "README.md"
 keywords = ["novel", "sfacg", "ciweimao", "ciyuanji"]
 categories = ["command-line-utilities"]
+build = "build.rs"
 
 [dependencies]
 # https://github.com/dtolnay/thiserror
@@ -197,6 +198,12 @@ hashbrown = { version = "0.14.5", default-features = false, features = [
 ] }
 # https://github.com/zkat/is_ci
 is_ci = { version = "1.2.0", default-features = false }
+# https://github.com/rust-phf/rust-phf
+phf = { version = "0.11.2", default-features = false, features = ["std"] }
+
+[build-dependencies]
+# https://github.com/rust-phf/rust-phf
+phf_codegen = { version = "0.11.2", default-features = false }
 
 [dev-dependencies]
 # https://github.com/dtolnay/anyhow

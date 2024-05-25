@@ -258,13 +258,12 @@ impl Client for SfacgClient {
                 response.status.check()?;
                 let data = response.data.unwrap();
 
-                // Currently this value is false, it may change in the future
-                assert!(
-                    !data.expand.is_content_encrypted,
-                    "Decryption of encrypted content is not supported"
-                );
+                if data.expand.is_content_encrypted {
+                    content = SfacgClient::convert(data.expand.content);
+                } else {
+                    content = data.expand.content;
+                }
 
-                content = data.expand.content;
                 match other {
                     FindTextResult::None => self.db().await?.insert_text(info, &content).await?,
                     FindTextResult::Outdate => self.db().await?.update_text(info, &content).await?,

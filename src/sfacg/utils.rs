@@ -9,11 +9,27 @@ use uuid::Uuid;
 
 use crate::{Error, HTTPClient, NovelDB, SfacgClient};
 
+#[cfg(target_os = "windows")]
+macro_rules! PATH_SEPARATOR {
+    () => {
+        r"\"
+    };
+}
+
+#[cfg(not(target_os = "windows"))]
+macro_rules! PATH_SEPARATOR {
+    () => {
+        r"/"
+    };
+}
+
+include!(concat!(env!("OUT_DIR"), PATH_SEPARATOR!(), "codegen.rs"));
+
 impl SfacgClient {
     const APP_NAME: &'static str = "sfacg";
 
     const HOST: &'static str = "https://api.sfacg.com";
-    const USER_AGENT: &'static str = "boluobao/5.0.48(android;31)/H5/{}/H5";
+    const USER_AGENT: &'static str = "boluobao/5.0.52(android;31)/H5/{}/H5";
     const USER_AGENT_RSS: &'static str =
         "Dalvik/2.1.0 (Linux; U; Android 12; sdk_gphone64_arm64 Build/SE1A.220203.002.A1)";
 
@@ -156,5 +172,21 @@ impl SfacgClient {
         Ok(format!(
             "nonce={uuid}&timestamp={timestamp}&devicetoken={device_token}&sign={sign}"
         ))
+    }
+
+    pub(crate) fn convert(content: String) -> String {
+        let mut result = String::new();
+
+        for c in content.chars() {
+            let code_point = c as u32;
+
+            if (19968..=19968 + 0x51A5).contains(&code_point) {
+                result.push(*CHARACTER_MAPPER.get(&c).unwrap_or(&c));
+            } else {
+                result.push(c)
+            }
+        }
+
+        result
     }
 }
