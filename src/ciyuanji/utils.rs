@@ -136,14 +136,34 @@ impl CiyuanjiClient {
         T: AsRef<str>,
         E: Serialize,
     {
-        let response = self
-            .client()
-            .await?
-            .get(CiyuanjiClient::HOST.to_string() + url.as_ref())
-            .query(&GenericRequest::new(query)?)
-            .header("token", self.try_token())
-            .send()
-            .await?;
+        let mut count = 0;
+
+        let response = loop {
+            let response = self
+                .client()
+                .await?
+                .get(CiyuanjiClient::HOST.to_string() + url.as_ref())
+                .query(&GenericRequest::new(&query)?)
+                .header("token", self.try_token())
+                .send()
+                .await;
+
+            if let Ok(response) = response {
+                break response;
+            } else {
+                info!(
+                    "HTTP request failed: `{}`, retry, number of times: `{}`",
+                    response.as_ref().unwrap_err(),
+                    count + 1
+                );
+
+                count += 1;
+                if count > 3 {
+                    response?;
+                }
+            }
+        };
+
         crate::check_status(
             response.status(),
             format!("HTTP request failed: `{}`", url.as_ref()),

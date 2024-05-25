@@ -148,8 +148,6 @@ impl CiweimaoClient {
         E: Serialize,
         R: DeserializeOwned,
     {
-        // TODO Version 0.12 may fail when there are high concurrent requests
-        // But version 0.11 does not, find out the reason
         let mut count = 0;
 
         let response = loop {
@@ -165,8 +163,9 @@ impl CiweimaoClient {
                 break response;
             } else {
                 info!(
-                    "HTTP request failed: `{}`, retry, number of times: `{count}`",
-                    response.as_ref().unwrap_err()
+                    "HTTP request failed: `{}`, retry, number of times: `{}`",
+                    response.as_ref().unwrap_err(),
+                    count + 1
                 );
 
                 count += 1;

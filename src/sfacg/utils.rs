@@ -4,6 +4,7 @@ use hex_simd::AsciiCase;
 use reqwest::{header::HeaderValue, Response};
 use serde::Serialize;
 use tokio::sync::OnceCell;
+use tracing::info;
 use url::Url;
 use uuid::Uuid;
 
@@ -109,15 +110,36 @@ impl SfacgClient {
         T: AsRef<str>,
         E: Serialize,
     {
-        Ok(self
-            .client()
-            .await?
-            .get(SfacgClient::HOST.to_string() + url.as_ref())
-            .query(&query)
-            .basic_auth(SfacgClient::USERNAME, Some(SfacgClient::PASSWORD))
-            .header("sfsecurity", self.sf_security()?)
-            .send()
-            .await?)
+        let mut count = 0;
+
+        let response = loop {
+            let response = self
+                .client()
+                .await?
+                .get(SfacgClient::HOST.to_string() + url.as_ref())
+                .query(&query)
+                .basic_auth(SfacgClient::USERNAME, Some(SfacgClient::PASSWORD))
+                .header("sfsecurity", self.sf_security()?)
+                .send()
+                .await;
+
+            if let Ok(response) = response {
+                break response;
+            } else {
+                info!(
+                    "HTTP request failed: `{}`, retry, number of times: `{}`",
+                    response.as_ref().unwrap_err(),
+                    count + 1
+                );
+
+                count += 1;
+                if count > 3 {
+                    response?;
+                }
+            }
+        };
+
+        Ok(response)
     }
 
     pub(crate) async fn post<T, E>(&self, url: T, json: E) -> Result<Response, Error>
