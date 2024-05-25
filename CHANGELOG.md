@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.1] - 2024-05-25
+
+### 🐛 Bug Fixes
+
+- Add a request to retry
+
 ## [0.11.0] - 2024-05-25
 
 ### 🐛 Bug Fixes
