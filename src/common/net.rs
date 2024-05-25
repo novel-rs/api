@@ -55,7 +55,7 @@ impl HTTPClientBuilder {
         Self {
             app_name,
             accept: None,
-            user_agent: String::from("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"),
+            user_agent: String::from("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"),
             cookie: false,
             allow_compress: true,
             proxy: None,
