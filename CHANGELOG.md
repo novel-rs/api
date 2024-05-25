@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.0] - 2024-05-25
+
+### 🐛 Bug Fixes
+
+- _(sfacg)_ Handling content encryption
+
+### 🚜 Refactor
+
+- Apply clippy
+
 ## [0.10.7] - 2024-04-29
 
 ### ⛰️ Features
