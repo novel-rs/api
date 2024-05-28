@@ -197,16 +197,10 @@ impl SfacgClient {
     }
 
     pub(crate) fn convert(content: String) -> String {
-        let mut result = String::new();
+        let mut result = String::with_capacity(content.len());
 
         for c in content.chars() {
-            let code_point = c as u32;
-
-            if (19968..=19968 + 0x51A5).contains(&code_point) {
-                result.push(*CHARACTER_MAPPER.get(&c).unwrap_or(&c));
-            } else {
-                result.push(c)
-            }
+            result.push(*CHARACTER_MAPPER.get(&c).unwrap_or(&c));
         }
 
         result
