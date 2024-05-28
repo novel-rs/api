@@ -18,7 +18,7 @@ build = "build.rs"
 # https://github.com/dtolnay/thiserror
 thiserror = { version = "1.0.61", default-features = false }
 # https://github.com/serde-rs/serde
-serde = { version = "1.0.202", default-features = false, features = [
+serde = { version = "1.0.203", default-features = false, features = [
   "std",
   "derive",
 ] }
@@ -173,10 +173,10 @@ open = { version = "5.1.3", default-features = false }
 # https://github.com/Dentosal/portpicker-rs
 portpicker = { version = "0.1.1", default-features = false }
 # https://github.com/RustCrypto/utils
-zeroize = { version = "1.7.0", default-features = false, features = [
+zeroize = { version = "1.8.1", default-features = false, features = [
   "alloc",
   "derive",
-  "aarch64",
+  "simd",
 ] }
 # https://github.com/console-rs/dialoguer
 dialoguer = { version = "0.11.0", default-features = false, features = [
