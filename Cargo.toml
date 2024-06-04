@@ -27,7 +27,7 @@ async-trait = { version = "0.1.80", default-features = false }
 # https://github.com/rust-lang/impl-trait-utils
 trait-variant = { version = "0.1.2", default-features = false }
 # https://github.com/tokio-rs/tokio
-tokio = { version = "1.37.0", default-features = false, features = [
+tokio = { version = "1.38.0", default-features = false, features = [
   "fs",
   "sync",
   # for connect_timeout
@@ -139,7 +139,7 @@ image = { version = "0.25.1", default-features = false, features = [
 # https://github.com/jaredforth/webp
 webp = { version = "0.3.0", default-features = false, features = ["img"] }
 # https://github.com/Nemo157/async-compression
-async-compression = { version = "0.4.10", default-features = false, features = [
+async-compression = { version = "0.4.11", default-features = false, features = [
   "tokio",
   "zstdmt",
 ] }
@@ -156,7 +156,7 @@ sea-orm-migration = { version = "0.12.15", default-features = false, features = 
   "runtime-tokio-rustls",
 ] }
 # https://github.com/toml-rs/toml
-toml = { version = "0.8.13", default-features = false, features = [
+toml = { version = "0.8.14", default-features = false, features = [
   "parse",
   "display",
 ] }
@@ -213,7 +213,7 @@ pretty_assertions = { version = "1.4.0", default-features = false, features = [
   "std",
 ] }
 # https://github.com/tokio-rs/tokio
-tokio = { version = "1.37.0", default-features = false, features = [
+tokio = { version = "1.38.0", default-features = false, features = [
   "macros",
   "rt-multi-thread",
 ] }
