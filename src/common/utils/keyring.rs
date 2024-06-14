@@ -42,9 +42,9 @@ impl Keyring {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     use pretty_assertions::assert_eq;
+
+    use super::*;
 
     #[tokio::test]
     async fn keyring() -> Result<(), Error> {

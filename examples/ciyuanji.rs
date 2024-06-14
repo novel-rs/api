@@ -1,5 +1,4 @@
 use anyhow::Result;
-
 use novel_api::{CiyuanjiClient, Client, Options, WordCountRange};
 
 #[tokio::main]

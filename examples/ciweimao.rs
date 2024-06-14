@@ -1,5 +1,4 @@
 use anyhow::Result;
-
 use novel_api::{CiweimaoClient, Client, Options, WordCountRange};
 
 #[tokio::main]

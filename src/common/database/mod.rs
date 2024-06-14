@@ -5,7 +5,9 @@ use std::{io::Cursor, path::PathBuf, time::Duration};
 
 use async_compression::tokio::{bufread::ZstdDecoder, write::ZstdEncoder};
 use chrono::NaiveDateTime;
+use entity::{Image, Text};
 use image::{io::Reader, DynamicImage};
+use migration::{Migrator, MigratorTrait};
 use sea_orm::{ActiveModelTrait, ConnectOptions, Database, DatabaseConnection, EntityTrait};
 use tokio::{
     fs,
@@ -15,8 +17,6 @@ use tracing::{error, info};
 use url::Url;
 
 use crate::{ChapterInfo, Error};
-use entity::{Image, Text};
-use migration::{Migrator, MigratorTrait};
 
 #[must_use]
 pub(crate) struct NovelDB {
@@ -204,11 +204,11 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     use std::str::FromStr;
 
     use pretty_assertions::assert_eq;
+
+    use super::*;
 
     #[tokio::test]
     async fn zstd() -> Result<(), Error> {

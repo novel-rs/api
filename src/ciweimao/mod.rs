@@ -20,12 +20,12 @@ use tokio::sync::OnceCell;
 use tracing::{error, info};
 use url::Url;
 
+use self::structure::*;
 use crate::{
     Category, ChapterInfo, Client, ContentInfo, ContentInfos, Error, FindImageResult,
     FindTextResult, HTTPClient, NovelDB, NovelInfo, Options, Tag, UserInfo, VolumeInfo,
     VolumeInfos, WordCountRange,
 };
-use structure::*;
 
 #[must_use]
 #[derive(Serialize, Deserialize)]

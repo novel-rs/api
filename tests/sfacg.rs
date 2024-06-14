@@ -1,5 +1,4 @@
 use anyhow::Result;
-
 use novel_api::{Client, Options, SfacgClient, WordCountRange};
 
 #[tokio::test]
