@@ -5,9 +5,7 @@ use std::{io::Cursor, path::PathBuf, time::Duration};
 
 use async_compression::tokio::{bufread::ZstdDecoder, write::ZstdEncoder};
 use chrono::NaiveDateTime;
-use entity::{Image, Text};
 use image::{io::Reader, DynamicImage};
-use migration::{Migrator, MigratorTrait};
 use sea_orm::{ActiveModelTrait, ConnectOptions, Database, DatabaseConnection, EntityTrait};
 use tokio::{
     fs,
@@ -16,6 +14,10 @@ use tokio::{
 use tracing::{error, info};
 use url::Url;
 
+use self::{
+    entity::{Image, Text},
+    migration::{Migrator, MigratorTrait},
+};
 use crate::{ChapterInfo, Error};
 
 #[must_use]
