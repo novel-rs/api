@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.2] - 2024-06-17
+
+### 🚜 Refactor
+
+- _(sfacg)_ Remove useless code
+
+### 🎨 Styling
+
+- Reformatting the code
+
 ## [0.11.1] - 2024-05-25
 
 ### 🐛 Bug Fixes
