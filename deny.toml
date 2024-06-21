@@ -100,7 +100,6 @@ allow = [
   "ISC",
   "BSD-3-Clause",
   "MPL-2.0",
-  "Unicode-3.0",
 ]
 # The confidence threshold for detecting a license from license text.
 # The higher the value, the more closely the license text must be to the
@@ -116,6 +115,8 @@ exceptions = [
   { allow = ["Unicode-DFS-2016"], crate = "unicode-ident" },
   { allow = ["OpenSSL"], crate = "ring" },
   { allow = ["Unlicense"], crate = "portpicker" },
+  { allow = ["Zlib"], crate = "const_format" },
+  { allow = ["Zlib"], crate = "const_format_proc_macros" },
 ]
 
 # Some crates don't have (easily) machine readable licensing information,

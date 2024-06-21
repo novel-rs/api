@@ -1,13 +1,18 @@
 use std::sync::RwLock;
 
+use const_format::concatcp;
 use once_cell::sync::OnceCell as SyncOnceCell;
+use rand::{distributions::Alphanumeric, Rng};
 use reqwest::Response;
-use ring::digest::Digest;
+use ring::{
+    digest::Digest,
+    hmac::{self, Key},
+};
 use serde::{de::DeserializeOwned, Serialize};
 use serde_json::{json, Map, Value};
 use tokio::sync::OnceCell;
 use tracing::{error, info};
-use url::Url;
+use url::{form_urlencoded, Url};
 
 use super::Config;
 use crate::{CiweimaoClient, Error, HTTPClient, NovelDB};
@@ -21,16 +26,17 @@ impl CiweimaoClient {
     pub(crate) const NOT_FOUND: &'static str = "320001";
     pub(crate) const ALREADY_SIGNED_IN: &'static str = "340001";
 
-    // TODO 2.9.322 增加了新的参数验证
-    pub(crate) const APP_VERSION: &'static str = "2.9.319";
+    pub(crate) const APP_VERSION: &'static str = "2.9.328";
     pub(crate) const DEVICE_TOKEN: &'static str = "ciweimao_";
 
     const USER_AGENT: &'static str =
-        "Android com.kuangxiangciweimao.novel 2.9.319,google, sdk_gphone64_arm64, 31, 12";
+        "Android com.kuangxiangciweimao.novel 2.9.328,google, sdk_gphone64_arm64, 31, 12";
     const USER_AGENT_RSS: &'static str =
         "Dalvik/2.1.0 (Linux; U; Android 12; sdk_gphone64_arm64 Build/SE1A.220203.002.A1)";
 
     const AES_KEY: &'static str = "zG2nSeEfSHfvTCHy5LCcqtBbQehKNLXn";
+    const HMAC_KEY: &'static str = "a90f3731745f1c30ee77cb13fc00005a";
+    const SIGNATURES: &'static str = concatcp!(CiweimaoClient::HMAC_KEY, "CkMxWNB666");
 
     /// Create a ciweimao client
     pub async fn new() -> Result<Self, Error> {
@@ -181,8 +187,7 @@ impl CiweimaoClient {
         )?;
 
         let bytes = response.bytes().await?;
-        let bytes =
-            crate::aes_256_cbc_no_iv_base64_decrypt(CiweimaoClient::get_default_key(), &bytes)?;
+        let bytes = crate::aes_256_cbc_no_iv_base64_decrypt(CiweimaoClient::get_aes_key(), &bytes)?;
 
         let str = simdutf8::basic::from_utf8(&bytes)?;
         Ok(serde_json::from_str(str)?)
@@ -211,6 +216,11 @@ impl CiweimaoClient {
             json!(CiweimaoClient::DEVICE_TOKEN),
         );
 
+        let rand_str = CiweimaoClient::get_rand_str();
+        let p = self.hmac(&rand_str);
+        object.insert(String::from("rand_str"), json!(rand_str));
+        object.insert(String::from("p"), json!(p));
+
         if self.has_token() {
             object.insert(String::from("account"), json!(self.try_account()));
             object.insert(String::from("login_token"), json!(self.try_login_token()));
@@ -220,11 +230,38 @@ impl CiweimaoClient {
     }
 
     #[must_use]
-    fn get_default_key() -> &'static [u8] {
+    fn get_aes_key() -> &'static [u8] {
         static AES_KEY: SyncOnceCell<Digest> = SyncOnceCell::new();
         AES_KEY
             .get_or_init(|| crate::sha256(CiweimaoClient::AES_KEY.as_bytes()))
             .as_ref()
+    }
+
+    #[must_use]
+    fn get_hmac_key() -> &'static Key {
+        static HMAC_KEY: SyncOnceCell<Key> = SyncOnceCell::new();
+        HMAC_KEY
+            .get_or_init(|| hmac::Key::new(hmac::HMAC_SHA256, CiweimaoClient::HMAC_KEY.as_bytes()))
+    }
+
+    fn get_rand_str() -> String {
+        rand::thread_rng()
+            .sample_iter(&Alphanumeric)
+            .take(32)
+            .map(|c| char::from(c).to_lowercase().to_string())
+            .collect()
+    }
+
+    fn hmac(&self, rand_str: &str) -> String {
+        let msg: String = form_urlencoded::Serializer::new(String::new())
+            .append_pair("account", &self.try_account())
+            .append_pair("app_version", CiweimaoClient::APP_VERSION)
+            .append_pair("rand_str", rand_str)
+            .append_pair("signatures", CiweimaoClient::SIGNATURES)
+            .finish();
+
+        let tag = hmac::sign(CiweimaoClient::get_hmac_key(), msg.as_bytes());
+        base64_simd::STANDARD.encode_to_string(tag.as_ref())
     }
 
     pub(crate) fn do_shutdown(&self) -> Result<(), Error> {
