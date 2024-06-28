@@ -42,7 +42,7 @@ simdutf8 = { version = "0.1.4", default-features = false, features = [
   "aarch64_neon",
 ] }
 # https://github.com/serde-rs/json
-serde_json = { version = "1.0.117", default-features = false, features = [
+serde_json = { version = "1.0.118", default-features = false, features = [
   "std",
 ] }
 # https://github.com/causal-agent/scraper
